@@ -73,8 +73,8 @@
           </button>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
             <li><a class="dropdown-item" href="#"><i class="far fa-user me-2"></i>Profile</a></li>
-            <li><a class="dropdown-item" href="#"><i class="far fa-receipt me-2"></i>Orders</a></li>
-            <li><a class="dropdown-item text-danger" href="#" @click="handleLogout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+            <li><a class="dropdown-item" href="#"><i class="far fa-file-alt me-2"></i>Orders</a></li>
+            <li><a class="dropdown-item text-danger" href="#" @click="showLogoutModal"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
           </ul>
         </div>
 
@@ -99,11 +99,31 @@
     </div>
     </div>
   </nav>
+
+  <!-- Logout Confirmation Modal -->
+  <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 380px">
+      <div class="modal-content">
+        <div class="modal-header border-0 pb-2">
+          <h5 class="modal-title" id="logoutModalLabel">Logout</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body pt-0">
+          Are you sure want to logout from vintage?
+        </div>
+        <div class="modal-footer border-0">
+          <BaseButton variant="light" custom-style="background-color: #EDEDED; color: #000" data-bs-dismiss="modal">Cancel</BaseButton>
+          <BaseButton variant="danger" @click="handleLogout">Logout</BaseButton>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const router = useRouter()
 const cartCount = ref(1)
@@ -125,7 +145,14 @@ const getUserInitials = () => {
 
 userInitials.value = getUserInitials()
 
+const showLogoutModal = () => {
+  const modal = new bootstrap.Modal(document.getElementById('logoutModal'))
+  modal.show()
+}
+
 const handleLogout = async () => {
+  const modal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'))
+  if (modal) modal.hide()
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   
   try {

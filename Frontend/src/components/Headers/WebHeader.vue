@@ -28,11 +28,15 @@
         <div class="d-flex align-items-center gap-3" style="margin-right: 12rem">
           <!-- Login & Sign up buttons (hidden on auth pages) -->
           <template v-if="!isAuthPage">
-            <router-link to="/login" class="btn px-4 py-2" style="border-color: #0D6B6F; color: #0D6B6F; text-decoration: none">
-              Login
+            <router-link to="/login" style="text-decoration: none">
+              <BaseButton variant="outline" custom-class="px-4 py-2" custom-style="border-color: #0D6B6F; color: #0D6B6F">
+                Login
+              </BaseButton>
             </router-link>
-            <router-link to="/signup" class="btn text-white px-4 py-2" style="background-color: #0D6B6F; border-color: #0D6B6F; text-decoration: none">
-              Sign up
+            <router-link to="/signup" style="text-decoration: none">
+              <BaseButton variant="primary" custom-class="px-4 py-2" custom-style="background-color: #0D6B6F; border-color: #0D6B6F">
+                Sign up
+              </BaseButton>
             </router-link>
           </template>
           
@@ -60,6 +64,8 @@
 </template>
 
 <script setup>
+import BaseButton from '@/components/ui/BaseButton.vue'
+
 defineProps({
   isAuthPage: {
     type: Boolean,
@@ -67,3 +73,4 @@ defineProps({
   }
 })
 </script>
+

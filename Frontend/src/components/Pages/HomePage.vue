@@ -1,89 +1,149 @@
 <template>
-  <!-- Hero Section -->
-  <div class="bg-primary text-white py-5">
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-lg-6">
-          <h1 class="display-4 fw-bold mb-3">Welcome to Our App</h1>
-          <p class="lead mb-4">Discover amazing features and build something great with Vue.js</p>
-          <router-link to="/hello" class="btn btn-light btn-lg me-3">
-            <i class="fas fa-rocket me-2"></i>Get Started
-          </router-link>
-          <button class="btn btn-outline-light btn-lg">
-            <i class="fas fa-play me-2"></i>Watch Demo
+  <div>
+    <!-- Hero Section -->
+    <div 
+      class="position-relative" 
+      style="height: 750px; overflow: hidden"
+    >
+      <img 
+        src="@/assets/HeaderBanner.jpg" 
+        alt="Hero Banner" 
+        class="position-absolute w-100 h-100"
+        style="object-fit:cover; object-position: center"
+      />
+      <div class="position-absolute w-100 h-100 d-flex align-items-center" style="background: rgba(0,0,0,0.2)">
+        <div class="container-fluid px-5">
+          <div class="row">
+            <div class="col-md-4 col-lg-3" style="margin-left: 5rem">
+              <div class="bg-white p-4 shadow-sm" style="border-radius: 8px">
+                <h2 class="fw-bold mb-3" style="font-size: 1.75rem">
+                  Ready to declutter<br />you closet?
+                </h2>
+                <router-link to="/shop" style="text-decoration: none">
+                  <BaseButton 
+                    variant="primary"
+                    custom-class="w-100 fw-semibold"
+                    custom-style="background-color: #0D6B6F; border: none"
+                  >
+                    Shop Now
+                  </BaseButton>
+                </router-link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popular Items Section -->
+    <div class="container-fluid py-5">
+      <div class="mx-auto" style="max-width: 1700px; padding: 0 2rem">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-semibold mb-0">Popular items</h3>
+        <a href="#" class="text-decoration-none" style="color: #17a2b8">
+          See all
+        </a>
+      </div>
+
+      <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-4 mb-4">
+        <ProductCard 
+          v-for="product in popularItems" 
+          :key="product.id" 
+          :product="product" 
+        />
+        
+        <!-- See All Card -->
+        <div class="col">
+          <div 
+            class="card h-100 border-0 d-flex align-items-center justify-content-center"
+            style="background-color: #E8F8F9; min-height: 300px; border-radius: 8px; cursor: pointer"
+          >
+            <div class="text-center">
+              <a href="#" class="text-decoration-none" style="color: #17a2b8">
+                <div class="fw-semibold">See All</div>
+                <div class="fw-semibold">Product</div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shop by Brand Section -->
+      <div class="mb-5 px-3">
+        <h3 class="fw-semibold mb-4">Shop by brand</h3>
+        <div class="d-flex flex-wrap gap-2">
+          <button
+            v-for="(brand, index) in brands"
+            :key="index"
+            class="btn btn-outline-secondary rounded-pill px-4 py-2"
+            style="font-size: 0.9rem"
+          >
+            {{ brand }}
           </button>
         </div>
-        <div class="col-lg-6 text-center">
-          <i class="fas fa-code display-1 opacity-75"></i>
-        </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Features Section -->
-  <div class="container py-5">
-    <div class="row text-center mb-5">
-      <div class="col-12">
-        <h2 class="fw-bold mb-3">Why Choose Us?</h2>
-        <p class="text-muted">Powerful features to help you build better applications</p>
-      </div>
-    </div>
-    
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body text-center">
-            <i class="fas fa-bolt text-warning display-4 mb-3"></i>
-            <h5 class="card-title">Fast Performance</h5>
-            <p class="card-text text-muted">Lightning fast loading times and optimized performance for the best user experience.</p>
-          </div>
+      <!-- New Product Section -->
+      <div class="px-3">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3 class="fw-semibold mb-0">New Product</h3>
+          <a href="#" class="text-decoration-none" style="color: #17a2b8">
+            See all
+          </a>
         </div>
-      </div>
-      
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body text-center">
-            <i class="fas fa-shield-alt text-success display-4 mb-3"></i>
-            <h5 class="card-title">Secure & Reliable</h5>
-            <p class="card-text text-muted">Built with security in mind and reliable infrastructure to keep your data safe.</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body text-center">
-            <i class="fas fa-mobile-alt text-info display-4 mb-3"></i>
-            <h5 class="card-title">Mobile Friendly</h5>
-            <p class="card-text text-muted">Responsive design that works perfectly on all devices and screen sizes.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- CTA Section -->
-  <div class="bg-light py-5">
-    <div class="container text-center">
-      <h3 class="fw-bold mb-3">Ready to Get Started?</h3>
-      <p class="text-muted mb-4">Join thousands of users who trust our platform</p>
-      <router-link to="/hello" class="btn btn-primary btn-lg">
-        <i class="fas fa-arrow-right me-2"></i>Start Now
-      </router-link>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-4">
+          <ProductCard 
+            v-for="product in newProducts" 
+            :key="product.id" 
+            :product="product" 
+          />
+          
+          <!-- See All Card -->
+          <div class="col">
+            <div 
+              class="card h-100 border-0 d-flex align-items-center justify-content-center"
+              style="background-color: #E8F8F9; min-height: 300px; border-radius: 8px; cursor: pointer"
+            >
+              <div class="text-center">
+                <a href="#" class="text-decoration-none" style="color: #17a2b8">
+                  <div class="fw-semibold">See All</div>
+                  <div class="fw-semibold">New Product</div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-.bg-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
+<script setup>
+import { ref } from 'vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import ProductCard from '@/components/Product/ProductCard.vue'
 
-.card {
-  transition: transform 0.3s ease;
-}
+const popularItems = ref([
+  { id: 1, name: 'Vintage chicago cubs white crewneck', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#E8E8E8' },
+  { id: 2, name: 'Red Crewneck', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#1C1C1C' },
+  { id: 3, name: 'Necklace', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#4A4A4A' },
+  { id: 4, name: 'Necklace', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#6BAED6' },
+  { id: 5, name: 'Necklace', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#FFD700' }
+])
 
-.card:hover {
-  transform: translateY(-5px);
-}
-</style>
+const newProducts = ref([
+  { id: 1, name: 'Vintage chicago cubs white crewneck', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#FFD700' },
+  { id: 2, name: 'Red Crewneck', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#1C1C1C' },
+  { id: 3, name: 'Necklace', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#0F4C4C' },
+  { id: 4, name: 'Necklace', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#E8E8E8' },
+  { id: 5, name: 'Necklace', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#7B68EE' }
+])
+
+const brands = ref([
+  'Vans', 'Bohoo', 'Mango', 'Reebok', 'Converse', 
+  'Sandro', 'Nike', 'Adidas', 'Dior', 'Puma', 
+  'Zara', 'Bershka', 'American Eagle'
+])
+</script>

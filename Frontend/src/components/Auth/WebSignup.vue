@@ -21,64 +21,50 @@
 
         <div>
           <!-- Full Name Field -->
-          <div class="mb-3">
-            <label for="fullname" class="form-label">
-              Full name <span class="text-danger">*</span>
-            </label>
-            <input
-              type="text"
-              class="form-control form-control-lg"
-              id="fullname"
-              v-model="formData.fullname"
-              placeholder="Enter your fullname"
-              required
-            />
-          </div>
+          <BaseInput
+            id="fullname"
+            v-model="formData.fullname"
+            type="text"
+            label="Full name"
+            placeholder="Enter your fullname"
+            :required="true"
+            size="lg"
+          />
 
           <!-- Username Field -->
-          <div class="mb-3">
-            <label for="username" class="form-label">
-              Username <span class="text-danger">*</span>
-            </label>
-            <input
-              type="text"
-              class="form-control form-control-lg"
-              id="username"
-              v-model="formData.username"
-              placeholder="Enter your username"
-              required
-            />
-          </div>
+          <BaseInput
+            id="username"
+            v-model="formData.username"
+            type="text"
+            label="Username"
+            placeholder="Enter your username"
+            :required="true"
+            size="lg"
+          />
 
           <!-- Email Field -->
-          <div class="mb-3">
-            <label for="email" class="form-label">
-              Email <span class="text-danger">*</span>
-            </label>
-            <input
-              type="email"
-              class="form-control form-control-lg"
-              id="email"
-              v-model="formData.email"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
+          <BaseInput
+            id="email"
+            v-model="formData.email"
+            type="email"
+            label="Email"
+            placeholder="Enter your email"
+            :required="true"
+            size="lg"
+          />
 
           <!-- Password Field -->
-          <div class="mb-3">
-            <label for="password" class="form-label">
-              Password <span class="text-danger">*</span>
-            </label>
-            <div class="position-relative">
-              <input
-                :type="showPassword ? 'text' : 'password'"
-                class="form-control form-control-lg pe-5"
-                id="password"
-                v-model="formData.password"
-                placeholder="Enter your password"
-                required
-              />
+          <BaseInput
+            id="password"
+            v-model="formData.password"
+            :type="showPassword ? 'text' : 'password'"
+            label="Password"
+            placeholder="Enter your password"
+            :required="true"
+            :has-icon="true"
+            size="lg"
+          >
+            <template #icon>
               <button
                 type="button"
                 class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-secondary"
@@ -90,23 +76,21 @@
                   <path v-else d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
                 </svg>
               </button>
-            </div>
-          </div>
+            </template>
+          </BaseInput>
 
           <!-- Confirmation Password Field -->
-          <div class="mb-3">
-            <label for="confirmPassword" class="form-label">
-              Confirmation Password <span class="text-danger">*</span>
-            </label>
-            <div class="position-relative">
-              <input
-                :type="showConfirmPassword ? 'text' : 'password'"
-                class="form-control form-control-lg pe-5"
-                id="confirmPassword"
-                v-model="formData.confirmPassword"
-                placeholder="Enter your password"
-                required
-              />
+          <BaseInput
+            id="confirmPassword"
+            v-model="formData.confirmPassword"
+            :type="showConfirmPassword ? 'text' : 'password'"
+            label="Confirmation Password"
+            placeholder="Enter your password"
+            :required="true"
+            :has-icon="true"
+            size="lg"
+          >
+            <template #icon>
               <button
                 type="button"
                 class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-secondary"
@@ -118,8 +102,8 @@
                   <path v-else d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
                 </svg>
               </button>
-            </div>
-          </div>
+            </template>
+          </BaseInput>
 
           <!-- Terms and Conditions Checkbox -->
           <div class="mb-4">
@@ -150,13 +134,15 @@
           </div>
 
           <!-- Submit Button -->
-          <button 
+          <BaseButton 
             @click="handleSubmit"
-            class="btn btn-lg w-100 text-white fw-semibold"
-            style="background-color: #17a2b8; border: none"
+            variant="primary"
+            size="lg"
+            custom-class="w-100 fw-semibold"
+            custom-style="background-color: #17a2b8; border: none"
           >
             Sign up
-          </button>
+          </BaseButton>
 
           <!-- Login Link -->
           <div class="text-center mt-3">
@@ -175,6 +161,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import SuccessRegister from './SuccessRegister.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseInput from '@/components/ui/BaseInput.vue'
 
 const router = useRouter()
 const showPassword = ref(false)

@@ -5,7 +5,7 @@
         <div class="modal-body p-5 text-center">
           <!-- Animated GIF -->
           <div class="mb-4 d-flex justify-content-center">
-            <img src="@/assets/SuccessFull.gif" alt="Success" style="width: 120px; height: 120px" />
+            <img src="@/assets/SuccessRegister.gif" alt="Success" style="width: 120px; height: 120px" />
           </div>
 
           <!-- Success Message -->

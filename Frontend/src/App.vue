@@ -3,7 +3,7 @@
     <NavbarLoggedIn v-if="isLoggedIn && !isAuthPage" />
     <WebHeader v-else :isAuthPage="isAuthPage" />
     <router-view></router-view>
-    <!-- <WebFooter/> -->
+    <WebFooter/>
   </div>
 </template>
 
@@ -12,13 +12,13 @@ import { computed, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import WebHeader from './components/Headers/WebHeader.vue';
 import NavbarLoggedIn from './components/Headers/NavbarLoggedIn.vue';
-// import WebFooter from './components/Footers/WebFooter.vue';
+import WebFooter from './components/Footer/WebFooter.vue';
 
 export default {
   components: {
     WebHeader,
     NavbarLoggedIn,
-    // WebFooter
+    WebFooter
   },
   setup() {
     const route = useRoute()
