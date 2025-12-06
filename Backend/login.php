@@ -22,6 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($user && password_verify($password, $user['password'])) {
+        // Update is_login to 1
+        $updateStmt = $pdo->prepare("UPDATE users SET islogin = 1 WHERE id = ?");
+        $updateStmt->execute([$user['id']]);
+        
         unset($user['password']);
         echo json_encode(['success' => true, 'message' => 'Login successful', 'user' => $user]);
     } else {

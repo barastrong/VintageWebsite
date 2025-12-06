@@ -28,9 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     
-    $stmt = $pdo->prepare("INSERT INTO users (username, fullname, email, password, created_at) VALUES (?, ?, ?, ?, NOW())");
+    $stmt = $pdo->prepare("INSERT INTO users (username, fullname, email, password, islogin, created_at) VALUES (?, ?, ?, ?, 1, NOW())");
     if ($stmt->execute([$username, $fullname, $email, $hashedPassword])) {
-        echo json_encode(['success' => true, 'message' => 'Registration successful']);
+        $userId = $pdo->lastInsertId();
+        echo json_encode(['success' => true, 'message' => 'Registration successful', 'userId' => $userId]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Registration failed']);
     }
