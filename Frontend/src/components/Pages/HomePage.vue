@@ -128,7 +128,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
-import ProductCard from '@/components/Product/ProductCard.vue'
+import ProductCard from '@/components/Card/ProductCard.vue'
 
 onMounted(() => {
   document.title = 'Discover Your Timeless Style'

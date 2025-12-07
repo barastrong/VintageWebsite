@@ -141,7 +141,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/stores/auth'
-import ProductCard from '@/components/Product/ProductCard.vue'
+import ProductCard from '@/components/Card/ProductCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import SuccessCart from '@/components/SuccessModal/SuccessCart.vue'
 

@@ -21,7 +21,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import ProductCard from '@/components/Product/ProductCard.vue'
+import ProductCard from '@/components/Card/ProductCard.vue'
 
 const route = useRoute()
 const products = ref([])

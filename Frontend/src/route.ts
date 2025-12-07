@@ -4,6 +4,7 @@ import WebSignup from './components/Auth/WebSignup.vue';
 import ShopPage from './components/Pages/shop.vue';
 import BrandPage from './components/Pages/BrandPage.vue';
 import DetailPage from './components/Pages/DetailPage.vue';
+import CartPage from './components/Pages/CartPage.vue'
 
 export const routes = [
   {path: '/',name: 'Home',component: HomePage},
@@ -12,4 +13,5 @@ export const routes = [
   {path:'/shop',name: 'Shop',component: ShopPage},
   {path:'/brand/:id',name: 'Brand',component: BrandPage},
   {path:'/detail/:id',name: 'Detail',component: DetailPage},
+  {path:'/cart', name:'Cart', component:CartPage},
 ]
