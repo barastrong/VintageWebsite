@@ -116,17 +116,17 @@
                 :style="{ 
                   width: '20px', 
                   height: '20px',
-                  backgroundColor: formData.agreeTerms ? '#17a2b8' : 'white',
-                  borderColor: '#17a2b8'
+                  backgroundColor: formData.agreeTerms ? '#0D6B6F' : 'white',
+                  borderColor: '#0D6B6F'
                 }"
               />
               <label class="form-check-label ms-2" for="agreeTerms">
                 By clicking sign up, I hereby agree and consent to 
-                <a href="#" class="text-decoration-none" style="color: #17a2b8">
+                <a href="#" class="text-decoration-none" style="color: #0D6B6F">
                   Term & Conditions
                 </a>
                 ; I confirm that I have read 
-                <a href="#" class="text-decoration-none" style="color: #17a2b8">
+                <a href="#" class="text-decoration-none" style="color: #0D6B6F">
                   Privacy policy
                 </a>.
               </label>
@@ -139,7 +139,7 @@
             variant="primary"
             size="lg"
             custom-class="w-100 fw-semibold"
-            custom-style="background-color: #17a2b8; border: none"
+            custom-style="background-color: #0D6B6F; border: none"
           >
             Sign up
           </BaseButton>
@@ -147,7 +147,7 @@
           <!-- Login Link -->
           <div class="text-center mt-3">
             <span class="text-muted">Already have an account? </span>
-            <router-link to="/login" class="text-decoration-none" style="color: #17a2b8">
+            <router-link to="/login" class="text-decoration-none" style="color: #0D6B6F">
               Login
             </router-link>
           </div>
@@ -160,7 +160,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import SuccessRegister from './SuccessRegister.vue'
+import SuccessRegister from '../SuccessModal/SuccessRegister.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 

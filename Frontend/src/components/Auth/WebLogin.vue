@@ -49,7 +49,7 @@
           @click="handleSubmit"
           variant="primary"
           custom-class="w-full py-3 font-semibold"
-          custom-style="background-color: #17a2b8; border: none"
+          custom-style="background-color: #0D6B6F; border: none"
         >
           Continue
         </BaseButton>
@@ -57,7 +57,7 @@
         <!-- Sign up Link -->
         <div class="text-center mt-4">
           <span class="text-muted">Don't have an account? </span>
-            <router-link to="/signup" class="text-decoration-none" style="color: #17a2b8">
+            <router-link to="/signup" class="text-decoration-none" style="color: #0D6B6F">
               Sign up
             </router-link>
         </div>

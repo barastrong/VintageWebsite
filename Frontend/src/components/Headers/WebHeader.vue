@@ -29,12 +29,12 @@
           <!-- Login & Sign up buttons (hidden on auth pages) -->
           <template v-if="!isAuthPage">
             <router-link to="/login" style="text-decoration: none">
-              <BaseButton variant="outline" custom-class="px-4 py-2" custom-style="border-color: #0D6B6F; color: #0D6B6F">
+              <BaseButton variant="outline" custom-class="px-4 py-2" custom-style="border-color: #009499; color: #009499">
                 Login
               </BaseButton>
             </router-link>
             <router-link to="/signup" style="text-decoration: none">
-              <BaseButton variant="primary" custom-class="px-4 py-2" custom-style="background-color: #0D6B6F; border-color: #0D6B6F">
+              <BaseButton variant="primary" custom-class="px-4 py-2" custom-style="background-color: #009499; border-color: #009499">
                 Sign up
               </BaseButton>
             </router-link>

@@ -69,3 +69,16 @@ const buttonClasses = computed(() => {
   return classes.join(' ')
 })
 </script>
+
+<style scoped>
+.btn-primary:hover {
+  background-color: #17a2b8 !important;
+  border-color: #17a2b8 !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: #17a2b8 !important;
+  border-color: #17a2b8 !important;
+  color: white !important;
+}
+</style>

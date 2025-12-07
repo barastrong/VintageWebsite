@@ -21,7 +21,7 @@
           <router-link 
             to="/"
             class="btn btn-lg w-100 text-white fw-semibold"
-            style="background-color: #17a2b8; border: none; text-decoration: none"
+            style="background-color: #0D6B6F; border: none; text-decoration: none"
           >
             Go to Home Page
           </router-link>
