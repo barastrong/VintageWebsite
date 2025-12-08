@@ -14,7 +14,7 @@ try {
     $query = "SELECT product_id, SUM(likes_count) as total_likes 
               FROM product_likes
               GROUP BY product_id";
-    
+        
     $stmt = $pdo->prepare($query);
     $stmt->execute();
     

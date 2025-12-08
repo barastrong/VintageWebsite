@@ -27,18 +27,19 @@
         <!-- Right side - Icons and Profile -->
         <div class="d-flex align-items-center" style="gap: 2.25rem; margin-right: 12rem">
         <!-- Cart Icon with Badge -->
-        <div class="position-relative">
-          <button class="btn btn-link p-0 text-dark" style="text-decoration: none">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-          </button>
-          <span 
-            v-if="cartCount > 0"
-            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-            style="font-size: 0.7rem; padding: 0.25rem 0.5rem"
-          >
-            {{ cartCount }}
-          </span>
-        </div>
+        <router-link to="/cart" style="text-decoration: none">
+          <div class="position-relative">
+            <button class="btn btn-link p-0 text-dark" style="text-decoration: none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+            </button>
+            <span 
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              style="font-size: 0.7rem; padding: 0.25rem 0.5rem"
+            >
+              {{ cartCount }}
+            </span>
+          </div>
+        </router-link>
 
         <!-- Favorite Icon with Badge -->
         <div class="position-relative">
@@ -121,12 +122,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseButton from '@/components/ui/BaseButton.vue'
 
 const router = useRouter()
-const cartCount = ref(1)
+const cartCount = ref(0)
 const favoriteCount = ref(1)
 
 const userInitials = ref('')
@@ -143,7 +144,33 @@ const getUserInitials = () => {
   return 'U'
 }
 
+const fetchCartCount = async () => {
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    if (!user.id) {
+      cartCount.value = 0
+      return
+    }
+    
+    const response = await fetch(`http://localhost/FinalTest/Backend/get_cart.php?user_id=${user.id}`)
+    const data = await response.json()
+    
+    if (data.success) {
+      cartCount.value = data.data ? data.data.length : 0
+    } else {
+      cartCount.value = 0
+    }
+  } catch (error) {
+    console.error('Error fetching cart count:', error)
+    cartCount.value = 0
+  }
+}
+
 userInitials.value = getUserInitials()
+
+onMounted(() => {
+  fetchCartCount()
+})
 
 const showLogoutModal = () => {
   const modal = new bootstrap.Modal(document.getElementById('logoutModal'))

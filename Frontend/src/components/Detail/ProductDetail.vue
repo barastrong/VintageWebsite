@@ -109,19 +109,33 @@
 
         <div class="d-flex align-items-center p-3 border rounded">
           <div 
-            class="rounded-circle bg-secondary me-3"
-            style="width: 50px; height: 50px; overflow: hidden"
+            class="rounded-circle me-3 d-flex align-items-center justify-content-center"
+            :style="{ 
+              width: '50px', 
+              height: '50px', 
+              overflow: 'hidden',
+              backgroundColor: product.seller_image ? 'transparent' : '#6c757d',
+              backgroundImage: product.seller_image ? `url(${product.seller_image})` : 'none',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="white" viewBox="0 0 16 16">
-              <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-              <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-            </svg>
+            <span v-if="!product.seller_image" class="text-white fw-bold" style="font-size: 1.2rem">
+              {{ getInitials(product.seller_name) }}
+            </span>
           </div>
           <div class="flex-grow-1">
-            <h6 class="mb-0">Jack on the corner</h6>
-            <div class="text-warning">
-              ★★★★★
-              <span class="text-muted ms-2">(110)</span>
+            <h6 class="mb-0">{{ product.seller_name || 'Unknown Seller' }}</h6>
+            <div class="d-flex align-items-center">
+              <span class="text-warning me-1">
+                <span v-for="i in 5" :key="i">
+                  <template v-if="i <= Math.floor(product.rating || 0)">★</template>
+                  <template v-else-if="i === Math.ceil(product.rating || 0) && (product.rating || 0) % 1 !== 0">⯨</template>
+                  <template v-else>☆</template>
+                </span>
+              </span>
+              <span class="text-dark fw-semibold me-1">{{ (product.rating || 0).toFixed(1) }}</span>
+              <span class="text-muted">({{ product.rating_count || 0 }})</span>
             </div>
           </div>
         </div>
@@ -138,7 +152,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/stores/auth'
 import ProductCard from '@/components/Card/ProductCard.vue'
@@ -153,22 +167,46 @@ const showSuccessModal = ref(false)
 
 checkAuth()
 
-const product = ref({
-  id: 1,
-  name: 'Vintage Chicago Cubs White Crewneck',
-  price: 'Rp1.250.000',
-  size: 'XL / L',
-  condition: 'Very Good',
-  location: 'Jakarta Selatan',
-  description: 'Authentic vintage Chicago Cubs crewneck sweatshirt from the 90s. Size XL but fits more like L with a looser fit. Made from premium cotton blend material. Has a few minor marks on the sleeve (pictured) but overall in excellent vintage condition. Perfect for collectors and vintage enthusiasts.',
-  category: 'Hoodies & Sweater',
-  color: 'White',
-  uploaded: '2 days ago',
-  image: '#E8E8E8',
-  likes: 45
+const product = ref({})
+const otherProducts = ref([])
+
+watch(() => route.params.id, (newId) => {
+  if (newId) {
+    fetchProductDetail()
+    fetchOtherProducts()
+    window.scrollTo(0, 0)
+  }
 })
 
-const otherProducts = ref([])
+const fetchProductDetail = async () => {
+  try {
+    const productId = route.params.id
+    const response = await fetch(`http://localhost/FinalTest/Backend/get_product_detail.php?id=${productId}`)
+    const data = await response.json()
+    if (data.success) {
+      product.value = data.data
+      document.title = `${product.value.name} - Vintage`
+      
+      if (isAuthenticated.value && user.value) {
+        checkLikeStatus()
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching product detail:', error)
+  }
+}
+
+const checkLikeStatus = async () => {
+  try {
+    const response = await fetch(`http://localhost/FinalTest/Backend/check_like.php?user_id=${user.value.id}&product_id=${product.value.id}`)
+    const data = await response.json()
+    if (data.success) {
+      isLiked.value = data.liked
+    }
+  } catch (error) {
+    console.error('Error checking like status:', error)
+  }
+}
 
 const fetchOtherProducts = async () => {
   try {
@@ -218,16 +256,51 @@ const toggleLike = async () => {
   }
 }
 
-const handleAddToCart = () => {
-  showSuccessModal.value = true
+const handleAddToCart = async () => {
+  if (!isAuthenticated.value) {
+    router.push('/login')
+    return
+  }
+
+  try {
+    const response = await fetch('http://localhost/FinalTest/Backend/add_to_cart.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: user.value.id,
+        product_id: product.value.id,
+        product_name: product.value.name,
+        quantity: 1
+      })
+    })
+    
+    const data = await response.json()
+    
+    if (data.success) {
+      showSuccessModal.value = true
+    }
+  } catch (error) {
+    console.error('Error adding to cart:', error)
+  }
 }
 
 const closeSuccessModal = () => {
   showSuccessModal.value = false
 }
 
+const getInitials = (name) => {
+  if (!name) return 'U'
+  const words = name.trim().split(' ')
+  if (words.length === 1) {
+    return words[0].substring(0, 2).toUpperCase()
+  }
+  return (words[0][0] + words[words.length - 1][0]).toUpperCase()
+}
+
 onMounted(() => {
-  document.title = `${product.value.name} - Vintage`
+  fetchProductDetail()
   fetchOtherProducts()
 })
 </script>

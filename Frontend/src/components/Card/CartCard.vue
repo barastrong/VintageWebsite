@@ -80,7 +80,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update-quantity', 'remove'])
 
-const quantity = ref(1)
+const quantity = ref(props.product.quantity || 1)
 
 const updateQuantity = (delta) => {
   quantity.value = Math.max(1, quantity.value + delta)

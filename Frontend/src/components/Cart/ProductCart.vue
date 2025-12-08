@@ -19,12 +19,36 @@
         <!-- Cart Items List -->
         <div class="d-flex flex-column gap-3">
           <CartCard 
-            v-for="item in cartItems" 
+            v-for="item in displayedCartItems" 
             :key="item.id" 
             :product="item"
             @update-quantity="handleUpdateQuantity"
             @remove="handleRemove"
           />
+          
+          <!-- Show All Button -->
+          <button 
+            v-if="cartItems.length > 4 && !showAllItems"
+            @click="showAllItems = true"
+            class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+            </svg>
+            Show All Items ({{ cartItems.length }})
+          </button>
+          
+          <!-- Show Less Button -->
+          <button 
+            v-if="showAllItems && cartItems.length > 4"
+            @click="showAllItems = false"
+            class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
+            </svg>
+            Show Less
+          </button>
         </div>
       </div>
 
@@ -72,14 +96,14 @@ import { ref, computed, onMounted } from 'vue'
 import CartCard from '@/components/Card/CartCard.vue'
 import ProductCard from '@/components/Card/ProductCard.vue'
 
-const cartItems = ref([
-  { id: 1, name: 'White crewneck', size: '8 / M', price: 'Rp200.000', quantity: 1, image: '#E8E8E8' },
-  { id: 2, name: 'Red crewneck', size: '8 / M', price: 'Rp200.000', quantity: 1, image: '#FF6B6B' },
-  { id: 3, name: 'Blue crewneck', size: '8 / M', price: 'Rp200.000', quantity: 1, image: '#6BAED6' },
-  { id: 4, name: 'Black crewneck', size: '8 / M', price: 'Rp200.000', quantity: 1, image: '#1C1C1C' }
-])
+const cartItems = ref([])
 
 const otherProducts = ref([])
+const showAllItems = ref(false)
+
+const displayedCartItems = computed(() => {
+  return showAllItems.value ? cartItems.value : cartItems.value.slice(0, 4)
+})
 
 const totalPrice = computed(() => {
   return cartItems.value.reduce((sum, item) => {
@@ -95,8 +119,26 @@ const handleUpdateQuantity = ({ productId, quantity }) => {
   }
 }
 
-const handleRemove = (productId) => {
-  cartItems.value = cartItems.value.filter(item => item.id !== productId)
+const handleRemove = async (cartId) => {
+  try {
+    const response = await fetch('http://localhost/FinalTest/Backend/remove_cart.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        cart_id: cartId
+      })
+    })
+    
+    const data = await response.json()
+    
+    if (data.success) {
+      cartItems.value = cartItems.value.filter(item => item.id !== cartId)
+    }
+  } catch (error) {
+    console.error('Error removing cart item:', error)
+  }
 }
 
 const fetchProducts = async () => {
@@ -111,7 +153,23 @@ const fetchProducts = async () => {
   }
 }
 
+const fetchCartItems = async () => {
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    if (!user.id) return
+    
+    const response = await fetch(`http://localhost/FinalTest/Backend/get_cart.php?user_id=${user.id}`)
+    const data = await response.json()
+    if (data.success) {
+      cartItems.value = data.data
+    }
+  } catch (error) {
+    console.error('Error fetching cart items:', error)
+  }
+}
+
 onMounted(() => {
   fetchProducts()
+  fetchCartItems()
 })
 </script>
