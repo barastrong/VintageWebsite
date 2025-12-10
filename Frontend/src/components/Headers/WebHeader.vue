@@ -16,6 +16,8 @@
               </svg>
             </span>
             <input 
+              v-model="searchQuery"
+              @keyup.enter="goToSearch"
               type="text" 
               class="form-control border-start-0 ps-0" 
               placeholder="Search for items"
@@ -64,7 +66,23 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import BaseButton from '@/components/ui/BaseButton.vue'
+
+const router = useRouter()
+const searchQuery = ref('')
+
+const goToSearch = () => {
+  if (searchQuery.value.trim()) {
+    router.push(`/search?q=${encodeURIComponent(searchQuery.value)}`)
+  }
+}
+
+// Listen for clear search event
+window.addEventListener('clearSearch', () => {
+  searchQuery.value = ''
+})
 
 defineProps({
   isAuthPage: {

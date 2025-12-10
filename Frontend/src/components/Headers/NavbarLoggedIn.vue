@@ -16,6 +16,8 @@
               </svg>
             </span>
             <input 
+              v-model="searchQuery"
+              @keyup.enter="goToSearch"
               type="text" 
               class="form-control border-start-0 ps-0" 
               placeholder="Search for items"
@@ -130,6 +132,18 @@ import { useCart } from '@/stores/cart'
 const router = useRouter()
 const { cartCount, fetchCartCount } = useCart()
 const favoriteCount = ref(1)
+const searchQuery = ref('')
+
+const goToSearch = () => {
+  if (searchQuery.value.trim()) {
+    router.push(`/search?q=${encodeURIComponent(searchQuery.value)}`)
+  }
+}
+
+// Listen for clear search event
+window.addEventListener('clearSearch', () => {
+  searchQuery.value = ''
+})
 
 const userInitials = ref('')
 
