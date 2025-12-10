@@ -27,7 +27,7 @@
         <!-- Right side - Icons and Profile -->
         <div class="d-flex align-items-center" style="gap: 2.25rem; margin-right: 12rem">
         <!-- Cart Icon with Badge -->
-        <router-link to="/cart" style="text-decoration: none">
+        <router-link :to="`/cart/${getUserId()}`" style="text-decoration: none">
           <div class="position-relative">
             <button class="btn btn-link p-0 text-dark" style="text-decoration: none">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
@@ -125,9 +125,10 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { useCart } from '@/stores/cart'
 
 const router = useRouter()
-const cartCount = ref(0)
+const { cartCount, fetchCartCount } = useCart()
 const favoriteCount = ref(1)
 
 const userInitials = ref('')
@@ -144,26 +145,9 @@ const getUserInitials = () => {
   return 'U'
 }
 
-const fetchCartCount = async () => {
-  try {
-    const user = JSON.parse(localStorage.getItem('user') || '{}')
-    if (!user.id) {
-      cartCount.value = 0
-      return
-    }
-    
-    const response = await fetch(`http://localhost/FinalTest/Backend/get_cart.php?user_id=${user.id}`)
-    const data = await response.json()
-    
-    if (data.success) {
-      cartCount.value = data.data ? data.data.length : 0
-    } else {
-      cartCount.value = 0
-    }
-  } catch (error) {
-    console.error('Error fetching cart count:', error)
-    cartCount.value = 0
-  }
+const getUserId = () => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  return user.id || 1
 }
 
 userInitials.value = getUserInitials()

@@ -280,6 +280,10 @@ const handleAddToCart = async () => {
     
     if (data.success) {
       showSuccessModal.value = true
+      // Update cart count
+      const { useCart } = await import('@/stores/cart')
+      const { fetchCartCount } = useCart()
+      fetchCartCount()
     }
   } catch (error) {
     console.error('Error adding to cart:', error)

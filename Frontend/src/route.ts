@@ -5,6 +5,7 @@ import ShopPage from './components/Pages/shop.vue';
 import BrandPage from './components/Pages/BrandPage.vue';
 import DetailPage from './components/Pages/DetailPage.vue';
 import CartPage from './components/Pages/CartPage.vue'
+import OrderPage from './components/Pages/OrderPage.vue';
 
 export const routes = [
   {path: '/',name: 'Home',component: HomePage},
@@ -13,5 +14,6 @@ export const routes = [
   {path:'/shop',name: 'Shop',component: ShopPage},
   {path:'/brand/:id',name: 'Brand',component: BrandPage},
   {path:'/detail/:id',name: 'Detail',component: DetailPage},
-  {path:'/cart', name:'Cart', component:CartPage},
+  {path:'/cart/:id', name:'Cart', component:CartPage},
+  {path:'/order', name:'Order', component:OrderPage}
 ]

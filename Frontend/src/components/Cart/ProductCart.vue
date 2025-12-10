@@ -93,8 +93,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import CartCard from '@/components/Card/CartCard.vue'
 import ProductCard from '@/components/Card/ProductCard.vue'
+
+const route = useRoute()
 
 const cartItems = ref([])
 
@@ -135,6 +138,10 @@ const handleRemove = async (cartId) => {
     
     if (data.success) {
       cartItems.value = cartItems.value.filter(item => item.id !== cartId)
+      // Update cart count
+      const { useCart } = await import('@/stores/cart')
+      const { fetchCartCount } = useCart()
+      fetchCartCount()
     }
   } catch (error) {
     console.error('Error removing cart item:', error)
@@ -155,10 +162,8 @@ const fetchProducts = async () => {
 
 const fetchCartItems = async () => {
   try {
-    const user = JSON.parse(localStorage.getItem('user') || '{}')
-    if (!user.id) return
-    
-    const response = await fetch(`http://localhost/FinalTest/Backend/get_cart.php?user_id=${user.id}`)
+    const userId = route.params.id
+    const response = await fetch(`http://localhost/FinalTest/Backend/get_cart.php?user_id=${userId}`)
     const data = await response.json()
     if (data.success) {
       cartItems.value = data.data
