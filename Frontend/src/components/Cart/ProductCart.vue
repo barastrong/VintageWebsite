@@ -5,11 +5,16 @@
       <div class="col-lg-8">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h2 class="fw-bold mb-0">Cart</h2>
-          <span class="text-muted fw-semibold" style="font-size: 1.1rem">{{ cartItems.length }} Items</span>
+          <span class="text-muted fw-semibold border rounded px-2 py-1" style="font-size: 1.1rem">
+            {{ cartItems.length > 0 ? `${cartItems.length} Items` : "You don't have any item yet" }}
+          </span>
         </div>
 
+        <!-- Divider -->
+        <hr v-if="cartItems.length === 0" class="my-4" style="color: gray;">
+
         <!-- Shipping Address -->
-        <div class="bg-light p-3 rounded mb-3 d-flex align-items-center mt-8">
+        <div v-if="cartItems.length > 0" class="bg-light p-3 rounded mb-3 d-flex align-items-center mt-8">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-muted me-2" viewBox="0 0 16 16">
             <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
           </svg>
@@ -17,7 +22,7 @@
         </div>
 
         <!-- Cart Items List -->
-        <div class="d-flex flex-column gap-3">
+        <div v-if="cartItems.length > 0" class="d-flex flex-column gap-3">
           <CartCard 
             v-for="item in displayedCartItems" 
             :key="item.id" 
@@ -27,29 +32,36 @@
           />
           
           <!-- Show All Button -->
-          <button 
+          <BaseButton 
             v-if="cartItems.length > 4 && !showAllItems"
             @click="showAllItems = true"
-            class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2"
+            variant="outline"
+            custom-class="w-100 d-flex align-items-center justify-content-center gap-2"
+            custom-style="border-color: #6c757d; color: #6c757d"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
             </svg>
             Show All Items ({{ cartItems.length }})
-          </button>
+          </BaseButton>
           
           <!-- Show Less Button -->
-          <button 
+          <BaseButton 
             v-if="showAllItems && cartItems.length > 4"
             @click="showAllItems = false"
-            class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2"
+            variant="outline"
+            custom-class="w-100 d-flex align-items-center justify-content-center gap-2"
+            custom-style="border-color: #6c757d; color: #6c757d"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
             </svg>
             Show Less
-          </button>
+          </BaseButton>
         </div>
+
+        <!-- Empty Cart State -->
+        <EmptyCart v-else />
       </div>
 
       <!-- Right Side - Order Summary -->
@@ -66,16 +78,19 @@
               <span class="text-muted small">Not include shipping fee</span>
             </div>
             <hr style="color:grey;">
-            <button 
-              class="btn btn-lg text-white w-100 fw-semibold"
-              style="background-color: #009499; border: none"
+            <BaseButton 
+              variant="primary"
+              custom-class="btn-lg w-100 fw-semibold"
+              custom-style="background-color: #009499; border-color: #009499"
             >
               Checkout({{ cartItems.length }})
-            </button>
+            </BaseButton>
           </div>
         </div>
       </div>
     </div>
+
+    <hr v-if="cartItems.length === 0" class="mt-5" style="color: gray; max-width: 66.666%">
 
     <!-- Other Products Section -->
     <div class="mt-5">
@@ -96,6 +111,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import CartCard from '@/components/Card/CartCard.vue'
 import ProductCard from '@/components/Card/ProductCard.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import EmptyCart from '@/components/Empty/EmptyCart.vue'
 
 const route = useRoute()
 

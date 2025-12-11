@@ -20,21 +20,23 @@
         </p>
 
         <div class="d-grid gap-2">
-          <button 
+          <BaseButton 
             @click="handleContinueShopping"
-            class="btn btn-lg btn-outline-info fw-semibold"
-            style="border-width: 2px; border-color: #009499; color: #009499; font-family: 'Baskito - Typography', sans-serif"
+            variant="outline"
+            custom-class="btn-lg fw-semibold"
+            custom-style="border-color: #009499; color: #009499; border-width: 2px; font-family: 'Baskito - Typography', sans-serif"
           >
             Continue shopping
-          </button>
+          </BaseButton>
           
-          <button 
+          <BaseButton 
             @click="handleGoToCart"
-            class="btn btn-lg text-white fw-semibold"
-            style="background-color: #009499; border: none; font-family: 'Baskito - Typography', sans-serif"
+            variant="primary"
+            custom-class="btn-lg fw-semibold"
+            custom-style="background-color: #009499; border-color: #009499; font-family: 'Baskito - Typography', sans-serif"
           >
             Go to cart
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -44,6 +46,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const props = defineProps({
   productName: {
@@ -64,7 +67,9 @@ const handleContinueShopping = () => {
 const handleGoToCart = () => {
   isVisible.value = false
   emit('close')
-  router.push('/cart')
+  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const userId = user.id || 1
+  router.push(`/cart/${userId}`)
 }
 </script>
 

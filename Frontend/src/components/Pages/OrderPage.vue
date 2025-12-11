@@ -35,16 +35,22 @@
               <span class="fw-bold fs-5">Rp{{ totalToPay.toLocaleString('id-ID') }}</span>
             </div>
 
-            <button 
+            <BaseButton 
               @click="handleOrderNow"
-              class="btn btn-lg text-white w-100 fw-semibold"
-              style="background-color: #17a2b8; border: none"
+              variant="primary"
+              custom-class="btn-lg w-100 fw-semibold"
+              custom-style="background-color: #17a2b8; border-color: #17a2b8"
             >
               Order Now
-            </button>
+            </BaseButton>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Success Order Modal -->
+    <div v-if="showSuccessModal" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 9999; background-color: rgba(0,0,0,0.5)">
+      <SuccessOrder @close="showSuccessModal = false" />
     </div>
   </div>
 </template>
@@ -52,12 +58,16 @@
 <script>
 import OrderItems from '../Order/OrderItems.vue'
 import ProductOrder from '../Order/ProductOrder.vue'
+import SuccessOrder from '../SuccessModal/SuccessOrder.vue'
+import BaseButton from '../ui/BaseButton.vue'
 
 export default {
   name: 'OrderPage',
   components: {
     OrderItems,
-    ProductOrder
+    ProductOrder,
+    SuccessOrder,
+    BaseButton
   },
   data() {
     return {
@@ -67,7 +77,8 @@ export default {
       ],
       orderTotal: 400000,
       protectionFee: 20000,
-      shippingFee: 15000
+      shippingFee: 15000,
+      showSuccessModal: false
     }
   },
   computed: {
@@ -78,7 +89,7 @@ export default {
   methods: {
     handleOrderNow() {
       console.log('Processing order...')
-      alert('Order placed successfully!')
+      this.showSuccessModal = true
     }
   }
 }
