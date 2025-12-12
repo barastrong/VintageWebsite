@@ -15,7 +15,7 @@
         >
         </div>
         <div class="card-body px-0">
-          <h4 class="mb-1" style="color: #0D6B6F; font-family: 'Quicksand', sans-serif; font-weight: 600">{{ product.price }}</h4>
+          <h4 class="mb-1" style="color: #0D6B6F; font-family: 'Quicksand', sans-serif; font-weight: 600">Rp {{ product.price }}</h4>
           <h4 class="card-title mb-1" style="font-size: 1.25rem; height: 3rem; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">{{ product.name }}</h4>
         <div class="d-flex justify-content-between align-items-center">
           <p class="text-muted mb-0" style="font-size: 0.85rem">{{ product.size }}</p>

@@ -137,11 +137,11 @@ onMounted(() => {
 })
 
 const popularItems = ref([
-  { id: 1, name: 'Vintage chicago cubs white crewneck', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#E8E8E8' },
-  { id: 2, name: 'Red Crewneck', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#1C1C1C' },
-  { id: 3, name: 'Necklace', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#4A4A4A' },
-  { id: 4, name: 'Necklace', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#6BAED6' },
-  { id: 5, name: 'Necklace', price: 'Rp200.000', size: '8 / M', likes: 12, image: '#FFD700' }
+  { id: 1, name: 'Vintage chicago cubs white crewneck', price: '200.000', size: '8 / M', likes: 12, image: '#E8E8E8' },
+  { id: 2, name: 'Red Crewneck', price: '200.000', size: '8 / M', likes: 12, image: '#1C1C1C' },
+  { id: 3, name: 'Necklace', price: '200.000', size: '8 / M', likes: 12, image: '#4A4A4A' },
+  { id: 4, name: 'Necklace', price: '200.000', size: '8 / M', likes: 12, image: '#6BAED6' },
+  { id: 5, name: 'Necklace', price: '200.000', size: '8 / M', likes: 12, image: '#FFD700' }
 ])
 
 const newProducts = ref([])

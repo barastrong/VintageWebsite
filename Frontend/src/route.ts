@@ -7,6 +7,7 @@ import DetailPage from './components/Pages/DetailPage.vue';
 import CartPage from './components/Pages/CartPage.vue'
 import OrderPage from './components/Pages/OrderPage.vue';
 import SearchPage from './components/Pages/SearchPage.vue';
+import FavoritePage from './components/Pages/FavoritePage.vue';
 
 export const routes = [
   {path: '/',name: 'Home',component: HomePage},
@@ -17,5 +18,6 @@ export const routes = [
   {path:'/detail/:id',name: 'Detail',component: DetailPage},
   {path:'/cart/:id', name:'Cart', component:CartPage},
   {path:'/order', name:'Order', component:OrderPage},
-  {path:'/search', name:'Search', component:SearchPage}
+  {path:'/search', name:'Search', component:SearchPage},
+  {path:'/favorite', name:'Favorite', component:FavoritePage}
 ]

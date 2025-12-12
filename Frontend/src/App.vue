@@ -1,8 +1,18 @@
 <template>
-  <div>
+  <!-- 1. Tambahkan class flexbox dan min-height 100% pada div utama -->
+  <div class="d-flex flex-column min-vh-100">
+    
+    <!-- Bagian Header -->
     <NavbarLoggedIn v-if="isLoggedIn && !isAuthPage" />
     <WebHeader v-else :isAuthPage="isAuthPage" />
-    <router-view></router-view>
+
+    <!-- 2. Bungkus router-view dengan div flex-grow-1 -->
+    <!-- Ini akan mendorong footer ke bawah jika kontennya sedikit -->
+    <div class="flex-grow-1">
+      <router-view></router-view>
+    </div>
+
+    <!-- Bagian Footer -->
     <WebFooter/>
   </div>
 </template>
@@ -29,7 +39,6 @@ export default {
     })
     
     onMounted(() => {
-      // Check if user is logged in from localStorage
       const user = localStorage.getItem('user')
       isLoggedIn.value = !!user
     })

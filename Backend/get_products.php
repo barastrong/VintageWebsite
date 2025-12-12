@@ -35,7 +35,7 @@ try {
         $formattedProducts[] = [
             'id' => $product['id'],
             'name' => $product['name'],
-            'price' => 'Rp' . number_format($product['price'], 0, ',', '.'),
+            'price' => number_format($product['price'], 0, ',', '.'),
             'size' => $product['size'] ? $product['size'] : 'One Size',
             'likes' => (int)$product['total_likes'],
             'image' => $product['image'] ? $product['image'] : '#E8E8E8',

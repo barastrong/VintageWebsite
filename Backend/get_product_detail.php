@@ -72,7 +72,7 @@ try {
     $formattedProduct = [
         'id' => $product['id'],
         'name' => $product['name'],
-        'price' => 'Rp' . number_format($product['price'], 0, ',', '.'),
+        'price' => number_format($product['price'], 0, ',', '.'),
         'size' => $product['size'] ? $product['size'] : 'One Size',
         'condition' => $product['condition_name'] ? $product['condition_name'] : 'N/A',
         'location' => $product['location_name'] ? $product['location_name'] : 'N/A',

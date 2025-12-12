@@ -1,5 +1,5 @@
 <template>
-  <footer class="text-white py-5" style="background-color: #0D6B6F">
+  <footer class="text-white py-5 mt-auto" style="background-color: #0D6B6F">
     <div class="container">
       <div class="row g-4">
         <!-- Vintage Column -->

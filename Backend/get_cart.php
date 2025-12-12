@@ -35,7 +35,7 @@ try {
             'product_id' => $item['product_id'],
             'name' => $item['name'],
             'size' => $item['size'] ? $item['size'] : 'One Size',
-            'price' => 'Rp' . number_format($item['price'], 0, ',', '.'),
+            'price' => number_format($item['price'], 0, ',', '.'),
             'quantity' => (int)$item['quantity'],
             'image' => $item['image'] ? $item['image'] : '#E8E8E8'
         ];
