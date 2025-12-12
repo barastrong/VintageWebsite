@@ -14,7 +14,6 @@
             class="rounded-circle d-flex align-items-center justify-content-center text-white fs-3 fw-bold"
             style="width: 80px; height: 80px; background-color: #17a2b8;"
           >
-            <!-- Menampilkan Inisial yang dihitung -->
             {{ userInitials }} 
           </div>
           
@@ -27,69 +26,102 @@
             style="width: 80px; height: 80px; object-fit: cover;"
           >
 
+          <!-- Input File Tersembunyi -->
+          <input 
+            type="file" 
+            ref="fileInput" 
+            @change="onFileChange" 
+            accept="image/jpeg,image/png"
+            style="display: none;"
+          />
           
-          <button @click="handlePhotoUpload" class="btn btn-outline-secondary">
+          <!-- Tombol Choose - Menggunakan BaseButton -->
+          <BaseButton 
+            @click="handlePhotoUpload" 
+            variant="outline"
+            custom-class="btn-outline-secondary"
+          >
             Choose
-          </button>
+          </BaseButton>
           
           <span class="text-muted small">JPG, JPEG or PNG, 1 MB max.</span>
           
-          <button 
-            @click="handleDeletePhoto"
-            class="btn btn-link text-danger ms-auto"
-            style="text-decoration: none;"
+          <!-- Tombol Delete Photo - Menggunakan BaseButton -->
+          <BaseButton 
+            @click="showDeleteModal"
+            variant="link"
+            custom-class="text-danger ms-auto"
+            custom-style="text-decoration: none;"
           >
             <!-- Trash Icon -->
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
               <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
               <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
             </svg>
-          </button>
+          </BaseButton>
         </div>
       </div>
 
       <!-- Full Name Input -->
-      <div class="mb-4">
-        <label for="fullName" class="form-label fw-semibold">Full name</label>
-        <input
-          type="text"
-          class="form-control form-control-lg"
-          id="fullName"
-          v-model="formData.fullName"
-        />
-      </div>
+      <BaseInput
+        id="fullName"
+        v-model="formData.fullName"
+        type="text"
+        label="Full name"
+        placeholder=""
+        size="lg"
+      />
 
       <!-- Username Input -->
-      <div class="mb-4">
-        <label for="username" class="form-label fw-semibold">Username</label>
-        <input
-          type="text"
-          class="form-control form-control-lg"
-          id="username"
-          v-model="formData.username"
-        />
-      </div>
+      <BaseInput
+        id="username"
+        v-model="formData.username"
+        type="text"
+        label="Username"
+        placeholder=""
+        size="lg"
+      />
 
       <!-- Email Input -->
-      <div class="mb-4">
-        <label for="email" class="form-label fw-semibold">Email</label>
-        <input
-          type="email"
-          class="form-control form-control-lg"
-          id="email"
-          v-model="formData.email"
-        />
-      </div>
+      <BaseInput
+        id="email"
+        v-model="formData.email"
+        type="email"
+        label="Email"
+        placeholder=""
+        size="lg"
+      />
 
       <!-- Update Button -->
       <div class="d-flex justify-content-end">
-        <button 
+        <BaseButton 
           @click="handleUpdateProfile"
-          class="btn btn-lg text-white fw-semibold px-5"
-          style="background-color: #17a2b8; border: none;"
+          variant="primary"
+          size="lg"
+          custom-class="text-white fw-semibold px-5"
+          custom-style="background-color: #17a2b8; border: none;"
         >
           Update Profile
-        </button>
+        </BaseButton>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deletePhotoModal" tabindex="-1" aria-labelledby="deletePhotoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 380px">
+      <div class="modal-content">
+        <div class="modal-header border-0 pb-2">
+          <h5 class="modal-title" id="deletePhotoModalLabel">Remove Photo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body pt-0">
+          Are you sure want to remove photo?
+        </div>
+        <div class="modal-footer border-0">
+          <BaseButton variant="light" custom-style="background-color: #EDEDED; color: #000" data-bs-dismiss="modal">Cancel</BaseButton>
+          <BaseButton variant="danger" @click="confirmDeletePhoto">Remove</BaseButton>
+        </div>
       </div>
     </div>
   </div>
@@ -97,9 +129,13 @@
 
 <script setup>
 import { reactive, onMounted, ref, computed } from 'vue'
+import BaseButton from '@/components/ui/BaseButton.vue' 
+import BaseInput from '@/components/ui/BaseInput.vue'   
 
-const API_URL = 'http://localhost/FinalTest/Backend/get_user.php'; 
-const userId = localStorage.getItem('id'); // Mengambil ID dari localStorage
+const API_GET_URL = 'http://localhost/FinalTest/Backend/get_user.php'; 
+const API_UPDATE_URL = 'http://localhost/FinalTest/Backend/update_user.php'; 
+const API_DELETE_IMAGE = 'http://localhost/FinalTest/Backend/remove_image.php'; 
+const userId = localStorage.getItem('id'); 
 
 const formData = reactive({
   fullName: '',
@@ -108,9 +144,11 @@ const formData = reactive({
 })
 
 const userImage = ref(null); 
+const fileInput = ref(null); 
+const fileToUpload = ref(null); 
 
 const userInitials = computed(() => {
-    const name = formData.username;
+    const name = formData.username; 
     if (!name) return '';
     const parts = name.trim().split(/\s+/);
 
@@ -123,7 +161,6 @@ const userInitials = computed(() => {
     }
 });
 
-
 const fetchUserData = async () => {
     if (!userId) {
         console.error('User ID not found in localStorage. Cannot fetch profile.');
@@ -131,8 +168,7 @@ const fetchUserData = async () => {
     }
     
     try {
-        // Mengirim ID via parameter query
-        const response = await fetch(`${API_URL}?id=${userId}`);
+        const response = await fetch(`${API_GET_URL}?id=${userId}`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -146,7 +182,7 @@ const fetchUserData = async () => {
             formData.email = data.data.email || '';
             
             if (data.data.image && data.data.image !== "") {
-              userImage.value = data.data.image; 
+              userImage.value = 'http://localhost/FinalTest/Backend/' + data.data.image; 
             } else {
               userImage.value = null; 
             }
@@ -164,20 +200,129 @@ onMounted(() => {
     fetchUserData();
 });
 
-
-const handleUpdateProfile = () => {
-  console.log('Update profile data:', formData)
-  alert('Profile updated successfully! (Logic update ke backend belum diimplementasikan)');
-}
-
 const handlePhotoUpload = () => {
-  console.log('Open file dialog...')
+    fileInput.value.click();
 }
 
-const handleDeletePhoto = () => {
-  if(confirm('Are you sure want to remove photo?')) {
-    userImage.value = null; 
-    console.log('Photo deleted (Logic delete di backend belum diimplementasikan)')
-  }
+const onFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        if (file.size > 1048576) { 
+            alert('File terlalu besar. Maksimal 1 MB.');
+            return;
+        }
+        fileToUpload.value = file;
+        userImage.value = URL.createObjectURL(file); 
+    }
+}
+
+const showDeleteModal = () => {
+    // Asumsi Bootstrap JS sudah di-load
+    const modal = new bootstrap.Modal(document.getElementById('deletePhotoModal'));
+    modal.show();
+}
+
+const confirmDeletePhoto = async () => {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('deletePhotoModal'));
+    if (modal) modal.hide();
+
+    if (!userId) {
+        alert('User ID not found. Please log in again.');
+        return;
+    }
+    
+    try {
+        const response = await fetch(API_DELETE_IMAGE, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: userId })
+        });
+        
+        if (!response.ok) {
+            const errorResult = await response.json();
+            alert(`Gagal hapus foto (Status ${response.status}): ${errorResult.message}`);
+            return; 
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            // TIDAK ADA ALERT JIKA BERHASIL
+            userImage.value = null; 
+            fileToUpload.value = null;
+            
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+            currentUser.image = null;
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            window.dispatchEvent(new Event('profileUpdated'));
+        } else {
+            alert(`Gagal hapus foto: ${result.message}`);
+        }
+
+    } catch (error) {
+        console.error('Delete photo error:', error);
+        alert('Gagal menghubungi server untuk hapus foto.');
+    }
+}
+
+const handleUpdateProfile = async () => {
+    if (!userId) {
+        alert('User ID not found. Please log in again.');
+        return;
+    }
+
+    const formDataUpdate = new FormData();
+    formDataUpdate.append('userId', userId);
+    formDataUpdate.append('fullName', formData.fullName);
+    formDataUpdate.append('username', formData.username);
+    formDataUpdate.append('email', formData.email);
+    
+    if (fileToUpload.value && fileToUpload.value !== 'DELETE') {
+        formDataUpdate.append('image', fileToUpload.value);
+    }
+
+    try {
+        const response = await fetch(API_UPDATE_URL, {
+            method: 'POST',
+            body: formDataUpdate 
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            alert(`Update Gagal (Status ${response.status}): ${errorResult.message}`);
+            return; 
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            // TIDAK ADA ALERT JIKA BERHASIL
+            fileToUpload.value = null; 
+            
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+            const newImagePath = result.imagePath ? ('uploads/users/' + result.imagePath) : currentUser.image;
+
+            const updatedUser = {
+                ...currentUser,
+                fullname: formData.fullName,
+                username: formData.username,
+                email: formData.email,
+                image: newImagePath 
+            };
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            
+            window.dispatchEvent(new Event('profileUpdated'));
+
+            if (result.imagePath) {
+                userImage.value = 'http://localhost/FinalTest/Backend/' + result.imagePath;
+            }
+        } else {
+            alert(`Update Gagal: ${result.message}`);
+        }
+
+    } catch (error) {
+        console.error('Update profile error:', error);
+        alert('Gagal menghubungi server untuk update profile. Cek koneksi dan URL.');
+    }
 }
 </script>

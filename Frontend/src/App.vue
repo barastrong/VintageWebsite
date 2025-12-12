@@ -1,8 +1,13 @@
 <template>
-  <div>
+  <div id="app-container">
     <NavbarLoggedIn v-if="isLoggedIn && !isAuthPage" />
     <WebHeader v-else :isAuthPage="isAuthPage" />
-    <router-view></router-view>
+    
+    <!-- Konten utama yang akan mengisi ruang kosong -->
+    <main class="flex-grow-1">
+      <router-view></router-view>
+    </main>
+    
     <WebFooter/>
   </div>
 </template>
@@ -38,3 +43,15 @@ export default {
   }
 }
 </script>
+
+<style>
+#app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Pastikan container mengisi seluruh tinggi viewport */
+}
+
+.flex-grow-1 {
+  flex-grow: 1;
+}
+</style>

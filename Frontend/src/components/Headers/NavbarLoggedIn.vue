@@ -71,13 +71,19 @@
               class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2"
               style="width: 40px; height: 40px; overflow: hidden"
             >
-              <span style="font-size: 16px; color: white; font-weight: 600">{{ userInitials }}</span>
+              <img 
+                v-if="userImage" 
+                :src="userImage" 
+                alt="Profile" 
+                style="width: 100%; height: 100%; object-fit: cover;"
+              />
+              <span v-else style="font-size: 16px; color: white; font-weight: 600">{{ userInitials }}</span>
             </div>
             <i class="fas fa-chevron-down text-dark"></i>
           </button>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown"><router-link to="/user/profile" style="text-decoration: none;">
             <li><a class="dropdown-item" href="#"><i class="far fa-user me-2"></i>Profile</a></li></router-link>
-            <li><a class="dropdown-item" href="#"><i class="far fa-file-alt me-2"></i>Orders</a></li>
+            <router-link to="/user/history" style="text-decoration: none;"><li><a class="dropdown-item" href="#"><i class="far fa-file-alt me-2"></i>Orders</a></li></router-link>
             <li><a class="dropdown-item text-danger" href="#" @click="showLogoutModal"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
           </ul>
         </div>
@@ -125,16 +131,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { useCart } from '@/stores/cart'
 import { useFavorite } from '@/stores/favorite'
 
+const API_GET_USER = 'http://localhost/FinalTest/Backend/get_user.php';
+
 const router = useRouter()
 const { cartCount, fetchCartCount } = useCart()
 const { favoriteCount, fetchFavoriteCount } = useFavorite()
 const searchQuery = ref('')
+
+const userImage = ref(null);
+const userStorageData = ref(JSON.parse(localStorage.getItem('user') || '{}'));
 
 const goToSearch = () => {
   if (searchQuery.value.trim()) {
@@ -142,36 +153,73 @@ const goToSearch = () => {
   }
 }
 
-// Listen for clear search event
 window.addEventListener('clearSearch', () => {
   searchQuery.value = ''
 })
 
-const userInitials = ref('')
+const fetchProfileImage = async (userId) => {
+    if (!userId) return;
 
-const getUserInitials = () => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
-  const username = user.username || ''
-  const names = username.trim().split(' ')
-  if (names.length >= 2) {
-    return (names[0][0] + names[1][0]).toUpperCase()
-  } else if (names.length === 1 && names[0]) {
-    return names[0].substring(0, 2).toUpperCase()
-  }
-  return 'U'
+    try {
+        const response = await fetch(`${API_GET_USER}?id=${userId}`);
+        const data = await response.json();
+
+        if (data.success && data.data.image) {
+            userImage.value = 'http://localhost/FinalTest/Backend/' + data.data.image;
+            
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+            currentUser.image = data.data.image;
+            localStorage.setItem('user', JSON.stringify(currentUser));
+        } else {
+            userImage.value = null;
+        }
+    } catch (error) {
+        console.error('Failed to fetch profile image:', error);
+        userImage.value = null;
+    }
 }
+
+const loadUserFromStorage = () => {
+    const userId = localStorage.getItem('id');
+    userStorageData.value = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (userStorageData.value.image) {
+        userImage.value = 'http://localhost/FinalTest/Backend/' + userStorageData.value.image;
+    } else {
+        fetchProfileImage(userId);
+    }
+}
+
+const userInitials = computed(() => {
+    const user = userStorageData.value;
+    const name = user.username || ''; 
+    const names = name.trim().split(/\s+/);
+    
+    if (names.length >= 2) {
+      const firstInitial = names[0].charAt(0);
+      const lastInitial = names[names.length - 1].charAt(0);
+      return (firstInitial + lastInitial).toUpperCase();
+    } else if (names.length === 1 && names[0]) {
+      return names[0].substring(0, 2).toUpperCase();
+    }
+    return 'U';
+});
 
 const getUserId = () => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
-  return user.id || 1
+  return userStorageData.value.id || 1
 }
 
-userInitials.value = getUserInitials()
-
 onMounted(() => {
-  fetchCartCount(),
-  fetchFavoriteCount()
-})
+    loadUserFromStorage();
+    fetchCartCount();
+    fetchFavoriteCount();
+    window.addEventListener('profileUpdated', loadUserFromStorage);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('profileUpdated', loadUserFromStorage);
+});
+
 
 const showLogoutModal = () => {
   const modal = new bootstrap.Modal(document.getElementById('logoutModal'))
@@ -181,7 +229,7 @@ const showLogoutModal = () => {
 const handleLogout = async () => {
   const modal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'))
   if (modal) modal.hide()
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const user = userStorageData.value
   
   try {
     await fetch('http://localhost/FinalTest/Backend/logout.php', {
@@ -197,10 +245,11 @@ const handleLogout = async () => {
     console.error('Logout error:', error)
   }
   
-  // Remove user from localStorage
   localStorage.removeItem('user')
+  localStorage.removeItem('id')
+  userStorageData.value = {}; 
+  userImage.value = null;
   
-  // Redirect to home and reload
   window.location.href = '/'
 }
 </script>

@@ -5,50 +5,49 @@
 
       <form @submit.prevent="handleChangePassword">
         <!-- Current Password -->
-        <div class="mb-4">
-          <label class="form-label fw-semibold">Current Password</label>
-          <input 
-            type="password" 
-            class="form-control form-control-lg"
-            v-model="form.current"
-            placeholder="Enter current password"
-            required
-          />
-        </div>
+        <BaseInput
+          id="currentPassword"
+          v-model="form.current"
+          type="password"
+          label="Current Password"
+          placeholder="Enter current password"
+          :required="true"
+          size="lg"
+        />
 
         <!-- New Password -->
-        <div class="mb-4">
-          <label class="form-label fw-semibold">New Password</label>
-          <input 
-            type="password" 
-            class="form-control form-control-lg"
-            v-model="form.new"
-            placeholder="Enter new password"
-            required
-          />
-        </div>
+        <BaseInput
+          id="newPassword"
+          v-model="form.new"
+          type="password"
+          label="New Password"
+          placeholder="Enter new password"
+          :required="true"
+          size="lg"
+        />
 
         <!-- Confirm Password -->
-        <div class="mb-4">
-          <label class="form-label fw-semibold">Confirm Password</label>
-          <input 
-            type="password" 
-            class="form-control form-control-lg"
-            v-model="form.confirm"
-            placeholder="Repeat new password"
-            required
-          />
-        </div>
+        <BaseInput
+          id="confirmPassword"
+          v-model="form.confirm"
+          type="password"
+          label="Confirm Password"
+          placeholder="Repeat new password"
+          :required="true"
+          size="lg"
+        />
 
         <!-- Button -->
         <div class="d-flex justify-content-end mt-5">
-          <button 
+          <BaseButton 
             type="submit"
-            class="btn btn-lg text-white fw-semibold px-5"
-            style="background-color: #17a2b8; border: none;"
+            variant="primary"
+            size="lg"
+            custom-class="text-white fw-semibold px-5"
+            custom-style="background-color: #17a2b8; border: none;"
           >
             Update Password
-          </button>
+          </BaseButton>
         </div>
       </form>
 
@@ -58,6 +57,9 @@
 
 <script setup>
 import { reactive } from 'vue'
+// Import komponen BaseInput dan BaseButton
+import BaseButton from '@/components/ui/BaseButton.vue' // Sesuaikan path jika berbeda
+import BaseInput from '@/components/ui/BaseInput.vue'   // Sesuaikan path jika berbeda
 
 const API_URL = 'http://localhost/FinalTest/Backend/change_password.php'
 
@@ -92,7 +94,7 @@ const handleChangePassword = async () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        userId: userId, // Kirim ID user dari localStorage
+        userId: userId, 
         currentPassword: form.current,
         newPassword: form.new
       })

@@ -64,12 +64,11 @@
         
         <div class="d-flex align-items-center">
           <div class="me-3">
-            <div 
-              class="bg-primary d-flex align-items-center justify-content-center rounded"
-              style="width: 50px; height: 35px; background-color: #1434CB !important"
-            >
-              <span class="text-white fw-bold" style="font-size: 0.8rem">VISA</span>
-            </div>
+              <img 
+                src="@/assets/visa2.png" 
+                alt="VISA" 
+                style="width: 75px; height: auto;"
+              >
           </div>
           <div>
             <h6 class="mb-1">0819283210323</h6>
