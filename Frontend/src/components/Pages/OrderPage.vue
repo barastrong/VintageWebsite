@@ -1,13 +1,22 @@
 <template>
   <div class="container py-4">
-    <div class="row g-4">
-      <!-- Left Side - Order Details -->
+    <div v-if="loading" class="text-center py-5">
+      <div class="spinner-border text-info" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2 text-muted">Fetching order details...</p>
+    </div>
+
+    <div v-else-if="!orderItems.length" class="text-center py-5">
+      <p class="text-muted">No pending order found.</p>
+    </div>
+
+    <div v-else class="row g-4">
       <div class="col-lg-8">
         <OrderItems :orderItems="orderItems" />
         <ProductOrder />
       </div>
 
-      <!-- Right Side - Order Summary -->
       <div class="col-lg-4">
         <div class="card border-0 shadow-sm sticky-top" style="top: 20px">
           <div class="card-body p-4">
@@ -48,49 +57,126 @@
       </div>
     </div>
 
-    <!-- Success Order Modal -->
+    <!-- Success Order Modal DIKEMBALIKAN -->
     <div v-if="showSuccessModal" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 9999; background-color: rgba(0,0,0,0.5)">
       <SuccessOrder @close="showSuccessModal = false" />
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import OrderItems from '../Order/OrderItems.vue'
 import ProductOrder from '../Order/ProductOrder.vue'
-import SuccessOrder from '../SuccessModal/SuccessOrder.vue'
 import BaseButton from '../ui/BaseButton.vue'
+import SuccessOrder from '../SuccessModal/SuccessOrder.vue' // Menggunakan nama yang benar
 
-export default {
-  name: 'OrderPage',
-  components: {
-    OrderItems,
-    ProductOrder,
-    SuccessOrder,
-    BaseButton
-  },
-  data() {
-    return {
-      orderItems: [
-        { id: 1, name: 'White crewneck', size: '8 / M', price: 200000, quantity: 1, image: '#E8E8E8' },
-        { id: 2, name: 'White crewneck', size: '8 / M', price: 200000, quantity: 1, image: '#E8E8E8' }
-      ],
-      orderTotal: 400000,
-      protectionFee: 20000,
-      shippingFee: 15000,
-      showSuccessModal: false
+const route = useRoute()
+const router = useRouter()
+const BASE_URL = 'http://localhost/FinalTest/Backend' 
+const IMAGE_BASE_URL = 'http://localhost/FinalTest/Backend/'
+
+const loading = ref(true)
+const orderItems = ref([])
+const orderTotal = ref(0)
+const protectionFee = ref(0)
+const shippingFee = ref(0)
+const showSuccessModal = ref(false) // State untuk Modal
+
+const toLocaleString = (price) => {
+  if (typeof price !== 'number' || isNaN(price)) return 0
+  return price
+}
+
+const totalToPay = computed(() => {
+  return toLocaleString(orderTotal.value) + toLocaleString(protectionFee.value) + toLocaleString(shippingFee.value)
+})
+
+const fetchOrderDetails = async () => {
+  loading.value = true
+  const userId = localStorage.getItem('id')
+  
+  if (!userId) {
+    loading.value = false
+    return
+  }
+
+  try {
+    // Menggunakan get_order.php sesuai kode Anda sebelumnya
+    const response = await fetch(`${BASE_URL}/get_order.php?user_id=${userId}`) 
+    const data = await response.json()
+
+    if (data.success && data.data.length > 0) {
+      const pendingOrders = data.data
+      
+      orderItems.value = pendingOrders.map(item => {
+        const imageUrl = item.product_image && !item.product_image.startsWith('http') 
+          ? IMAGE_BASE_URL + item.product_image 
+          : item.product_image || '#E8E8E8'
+
+        return {
+          id: item.id,
+          name: item.name,
+          size: item.product_size || 'N/A', 
+          price: parseInt(item.price) / parseInt(item.quantity), 
+          quantity: parseInt(item.quantity),
+          image: imageUrl
+        }
+      })
+      
+      const firstItem = pendingOrders[0] 
+      
+      orderTotal.value = pendingOrders.reduce((sum, item) => sum + parseInt(item.price), 0)
+      protectionFee.value = parseInt(firstItem.protection_price) 
+      shippingFee.value = parseInt(firstItem.shipping_price)
+
+    } else {
+      orderItems.value = []
     }
-  },
-  computed: {
-    totalToPay() {
-      return this.orderTotal + this.protectionFee + this.shippingFee
-    }
-  },
-  methods: {
-    handleOrderNow() {
-      console.log('Processing order...')
-      this.showSuccessModal = true
-    }
+  } catch (error) {
+    console.error('Error fetching order details:', error)
+  } finally {
+    loading.value = false
   }
 }
+
+const handleOrderNow = async () => {
+  const userId = localStorage.getItem('id')
+  if (!userId) return
+
+  try {
+    const response = await fetch(`${BASE_URL}/confirm_order.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: userId
+      })
+    })
+    
+    const data = await response.json()
+
+    if (data.success) {
+      console.log('Order confirmed. Showing success modal.');
+      
+      // 1. Kosongkan data di frontend (menghilangkan tampilan Order Page)
+      orderItems.value = [] 
+      
+      // 2. Tampilkan modal sukses
+      showSuccessModal.value = true 
+      
+    } else {
+      console.error('Order confirmation failed:', data.message)
+    }
+
+  } catch (error) {
+    console.error('Network error during order confirmation:', error)
+  }
+}
+
+onMounted(() => {
+  fetchOrderDetails()
+})
 </script>

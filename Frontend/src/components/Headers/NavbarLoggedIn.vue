@@ -81,7 +81,7 @@
             </div>
             <i class="fas fa-chevron-down text-dark"></i>
           </button>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown"><router-link to="/user/profile" style="text-decoration: none;">
+          <ul class="dropdown-menu dropdown-menu-end custom-z-index" aria-labelledby="profileDropdown"><router-link to="/user/profile" style="text-decoration: none;">
             <li><a class="dropdown-item" href="#"><i class="far fa-user me-2"></i>Profile</a></li></router-link>
             <router-link to="/user/history" style="text-decoration: none;"><li><a class="dropdown-item" href="#"><i class="far fa-file-alt me-2"></i>Orders</a></li></router-link>
             <li><a class="dropdown-item text-danger" href="#" @click="showLogoutModal"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
@@ -253,3 +253,9 @@ const handleLogout = async () => {
   window.location.href = '/'
 }
 </script>
+
+<style>
+.custom-z-index {
+    z-index: 1030 !important; /* Gunakan nilai yang lebih tinggi dari z-index navbar/sticky-top */
+}
+</style>

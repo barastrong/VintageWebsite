@@ -1,7 +1,6 @@
 <template>
   <div class="container py-4">
     <div class="row g-4">
-      <!-- Left Side - Cart Items -->
       <div class="col-lg-8">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h2 class="fw-bold mb-0">Cart</h2>
@@ -10,10 +9,8 @@
           </span>
         </div>
 
-        <!-- Divider -->
         <hr v-if="cartItems.length === 0" class="my-4" style="color: gray;">
 
-        <!-- Shipping Address -->
         <div v-if="cartItems.length > 0" class="bg-light p-3 rounded mb-3 d-flex align-items-center mt-8">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-muted me-2" viewBox="0 0 16 16">
             <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
@@ -21,7 +18,6 @@
           <span class="text-muted">Shipping to <strong>Kuta, Badung</strong></span>
         </div>
 
-        <!-- Cart Items List -->
         <div v-if="cartItems.length > 0" class="d-flex flex-column gap-3">
           <CartCard 
             v-for="item in displayedCartItems" 
@@ -31,7 +27,6 @@
             @remove="handleRemove"
           />
           
-          <!-- Show All Button -->
           <BaseButton 
             v-if="cartItems.length > 4 && !showAllItems"
             @click="showAllItems = true"
@@ -45,7 +40,6 @@
             Show All Items ({{ cartItems.length }})
           </BaseButton>
           
-          <!-- Show Less Button -->
           <BaseButton 
             v-if="showAllItems && cartItems.length > 4"
             @click="showAllItems = false"
@@ -60,13 +54,11 @@
           </BaseButton>
         </div>
 
-        <!-- Empty Cart State -->
         <EmptyCart v-else />
       </div>
 
-      <!-- Right Side - Order Summary -->
       <div class="col-lg-4">
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm sticky-top" style="top: 20px">
           <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h5 class="fw-bold mb-0">Order Summary</h5>
@@ -82,6 +74,8 @@
               variant="primary"
               custom-class="btn-lg w-100 fw-semibold"
               custom-style="background-color: #009499; border-color: #009499"
+              @click="handleCheckout"
+              :disabled="cartItems.length === 0"
             >
               Checkout({{ cartItems.length }})
             </BaseButton>
@@ -92,7 +86,6 @@
 
     <hr v-if="cartItems.length === 0" class="mt-5" style="color: gray; max-width: 66.666%">
 
-    <!-- Other Products Section -->
     <div class="mt-5">
       <h3 class="fw-semibold mb-4">Other Product</h3>
       <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3" style="max-width: 66.666%">
@@ -108,13 +101,15 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import CartCard from '@/components/Card/CartCard.vue'
 import ProductCard from '@/components/Card/ProductCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import EmptyCart from '@/components/Empty/EmptyCart.vue'
 
 const route = useRoute()
+const router = useRouter()
+const BASE_URL = 'http://localhost/FinalTest/Backend'
 
 const cartItems = ref([])
 
@@ -141,7 +136,7 @@ const handleUpdateQuantity = ({ productId, quantity }) => {
 
 const handleRemove = async (cartId) => {
   try {
-    const response = await fetch('http://localhost/FinalTest/Backend/remove_cart.php', {
+    const response = await fetch(`${BASE_URL}/remove_cart.php`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -155,7 +150,6 @@ const handleRemove = async (cartId) => {
     
     if (data.success) {
       cartItems.value = cartItems.value.filter(item => item.id !== cartId)
-      // Update cart count
       const { useCart } = await import('@/stores/cart')
       const { fetchCartCount } = useCart()
       fetchCartCount()
@@ -165,9 +159,55 @@ const handleRemove = async (cartId) => {
   }
 }
 
+const handleCheckout = async () => {
+  if (cartItems.value.length === 0) {
+    console.log('Cart is empty. Checkout aborted.');
+    return;
+  }
+  
+  const userId = route.params.id;
+  if (!userId) {
+      console.error('User ID not found. Checkout aborted.');
+      return;
+  }
+
+  try {
+    const response = await fetch(`${BASE_URL}/checkout.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: parseInt(userId) 
+      })
+    });
+
+    const data = await response.json();
+    
+    if (response.ok && data.success) {
+      console.log('Order successfully placed! Redirecting to Orders page.');
+      
+      cartItems.value = [];
+      
+      const { useCart } = await import('@/stores/cart')
+      const { fetchCartCount } = useCart()
+      fetchCartCount()
+
+      router.push('/order'); 
+      
+    } else {
+      console.error('Checkout failed:', data.message);
+    }
+
+  } catch (error) {
+    console.error('Network or server error:', error);
+  }
+};
+
+
 const fetchProducts = async () => {
   try {
-    const response = await fetch('http://localhost/FinalTest/Backend/get_products.php')
+    const response = await fetch(`${BASE_URL}/get_products.php`)
     const data = await response.json()
     if (data.success) {
       otherProducts.value = data.data
@@ -180,7 +220,7 @@ const fetchProducts = async () => {
 const fetchCartItems = async () => {
   try {
     const userId = route.params.id
-    const response = await fetch(`http://localhost/FinalTest/Backend/get_cart.php?user_id=${userId}`)
+    const response = await fetch(`${BASE_URL}/get_cart.php?user_id=${userId}`)
     const data = await response.json()
     if (data.success) {
       cartItems.value = data.data

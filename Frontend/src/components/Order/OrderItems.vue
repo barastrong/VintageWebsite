@@ -9,13 +9,15 @@
         class="d-flex align-items-center mb-3 pb-3 border-bottom"
       >
         <div 
-          class="rounded me-3"
+          class="rounded me-3 order-item-image"
           :style="{ 
-            backgroundColor: item.image,
-            width: '60px',
-            height: '60px',
-            backgroundImage: 'linear-gradient(135deg, #f5f5f5 25%, transparent 25%, transparent 50%, #f5f5f5 50%, #f5f5f5 75%, transparent 75%, transparent)',
-            backgroundSize: '20px 20px'
+            backgroundImage: item.image && item.image.startsWith('http') 
+                             ? `url(${item.image})` 
+                             : item.image.startsWith('#') 
+                               ? `linear-gradient(135deg, ${item.image} 25%, transparent 25%, transparent 50%, ${item.image} 50%, ${item.image} 75%, transparent 75%, transparent)`
+                               : `url(${item.image})`, /* Jika image adalah path, gunakan url() */
+            backgroundSize: item.image.startsWith('#') ? '20px 20px' : 'cover',
+            backgroundPosition: 'center'
           }"
         />
         <div class="flex-grow-1">
@@ -42,3 +44,11 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.order-item-image {
+  width: 60px;
+  height: 60px;
+  background-repeat: no-repeat;
+}
+</style>
