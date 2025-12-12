@@ -7,16 +7,26 @@
       <div class="mb-4">
         <label class="form-label fw-semibold">Photo</label>
         <div class="d-flex align-items-center gap-3">
-          <!-- Avatar Circle -->
+          
+          <!-- Tampilkan Inisial User Jika userImage Kosong -->
           <div 
-            class="rounded-circle d-flex align-items-center justify-content-center"
-            style="width: 80px; height: 80px; background-color: #0dcaf0;"
+            v-if="!userImage" 
+            class="rounded-circle d-flex align-items-center justify-content-center text-white fs-3 fw-bold"
+            style="width: 80px; height: 80px; background-color: #17a2b8;"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="white" viewBox="0 0 16 16">
-              <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-              <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-            </svg>
+            <!-- Menampilkan Inisial yang dihitung -->
+            {{ userInitials }} 
           </div>
+          
+          <!-- Gambar Profil yang Sebenarnya -->
+          <img 
+            v-else 
+            :src="userImage" 
+            alt="User Profile" 
+            class="rounded-circle"
+            style="width: 80px; height: 80px; object-fit: cover;"
+          >
+
           
           <button @click="handlePhotoUpload" class="btn btn-outline-secondary">
             Choose
@@ -86,30 +96,88 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, onMounted, ref, computed } from 'vue'
 
-// Reactive state untuk data form
+const API_URL = 'http://localhost/FinalTest/Backend/get_user.php'; 
+const userId = localStorage.getItem('id'); // Mengambil ID dari localStorage
+
 const formData = reactive({
-  fullName: 'Jack Daniel',
-  username: 'jackdaniel',
-  email: 'jack@email.com'
+  fullName: '',
+  username: '',
+  email: ''
 })
 
-// Fungsi Handler
+const userImage = ref(null); 
+
+const userInitials = computed(() => {
+    const name = formData.username;
+    if (!name) return '';
+    const parts = name.trim().split(/\s+/);
+
+    if (parts.length >= 2) {
+        const firstInitial = parts[0].charAt(0);
+        const lastInitial = parts[parts.length - 1].charAt(0);
+        return (firstInitial + lastInitial).toUpperCase();
+    } else {
+        return name.substring(0, 2).toUpperCase();
+    }
+});
+
+
+const fetchUserData = async () => {
+    if (!userId) {
+        console.error('User ID not found in localStorage. Cannot fetch profile.');
+        return;
+    }
+    
+    try {
+        // Mengirim ID via parameter query
+        const response = await fetch(`${API_URL}?id=${userId}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+
+        if (data.success) {
+            formData.fullName = data.data.fullname || ''; 
+            formData.username = data.data.username || '';
+            formData.email = data.data.email || '';
+            
+            if (data.data.image && data.data.image !== "") {
+              userImage.value = data.data.image; 
+            } else {
+              userImage.value = null; 
+            }
+
+            console.log('User data successfully loaded:', data.data);
+        } else {
+            console.error('Failed to load user data:', data.message);
+        }
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+onMounted(() => {
+    fetchUserData();
+});
+
+
 const handleUpdateProfile = () => {
   console.log('Update profile data:', formData)
-  alert('Profile updated successfully!')
-  // Di sini nanti tambahkan logic fetch ke Backend PHP
+  alert('Profile updated successfully! (Logic update ke backend belum diimplementasikan)');
 }
 
 const handlePhotoUpload = () => {
   console.log('Open file dialog...')
-  // Di sini logic trigger input file
 }
 
 const handleDeletePhoto = () => {
   if(confirm('Are you sure want to remove photo?')) {
-    console.log('Photo deleted')
+    userImage.value = null; 
+    console.log('Photo deleted (Logic delete di backend belum diimplementasikan)')
   }
 }
 </script>

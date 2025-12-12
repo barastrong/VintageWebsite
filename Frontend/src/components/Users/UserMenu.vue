@@ -3,55 +3,62 @@
     <div class="card-body p-0">
       <h5 class="fw-bold p-4 mb-0">Settings</h5>
       <ul class="list-group list-group-flush">
-        <!-- Tab Profile -->
+        
+        <!-- Profile -->
         <li 
           class="list-group-item border-0"
-          :class="{ 'bg-light': activeTab === 'profile' }"
+          :class="{ 'bg-light': activeComponent === 'profile' }"
           style="cursor: pointer;"
-          @click="$emit('update:activeTab', 'profile')"
+          @click="$emit('changeComponent', 'profile')"
         >
           <div class="d-flex align-items-center py-2">
-            <span :class="{ 'fw-semibold': activeTab === 'profile' }">Profile details</span>
+            <span :class="{ 'fw-semibold': activeComponent === 'profile' }">
+              Profile details
+            </span>
           </div>
         </li>
 
-        <!-- Tab Password -->
+        <!-- Password -->
         <li 
           class="list-group-item border-0"
-          :class="{ 'bg-light': activeTab === 'password' }"
+          :class="{ 'bg-light': activeComponent === 'password' }"
           style="cursor: pointer;"
-          @click="$emit('update:activeTab', 'password')"
+          @click="$emit('changeComponent', 'password')"
         >
           <div class="d-flex align-items-center py-2">
-            <span :class="{ 'fw-semibold': activeTab === 'password' }">Change Password</span>
+            <span :class="{ 'fw-semibold': activeComponent === 'password' }">
+              Change Password
+            </span>
           </div>
         </li>
 
-        <!-- Tab History -->
+        <!-- History -->
         <li 
           class="list-group-item border-0"
-          :class="{ 'bg-light': activeTab === 'history' }"
+          :class="{ 'bg-light': activeComponent === 'history' }"
           style="cursor: pointer;"
-          @click="$emit('update:activeTab', 'history')"
+          @click="$emit('changeComponent', 'history')"
         >
           <div class="d-flex align-items-center py-2">
-            <span :class="{ 'fw-semibold': activeTab === 'history' }">Transaction History</span>
+            <span :class="{ 'fw-semibold': activeComponent === 'history' }">
+              Transaction History
+            </span>
           </div>
         </li>
+
       </ul>
     </div>
   </div>
 </template>
 
 <script setup>
-// Menerima data dari parent component
 defineProps({
-  activeTab: {
+  activeComponent: {
     type: String,
-    required: true
+    required: true,
+    default: 'profile'
   }
 })
 
-// Mengirim event ke parent saat diklik
-defineEmits(['update:activeTab'])
+defineEmits(['changeComponent'])
 </script>

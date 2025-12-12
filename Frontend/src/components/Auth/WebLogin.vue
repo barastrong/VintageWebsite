@@ -110,6 +110,7 @@ const handleSubmit = async () => {
     }
     
     if (result.success) {
+      localStorage.setItem('id', result.user.id); 
       // Save user to localStorage
       localStorage.setItem('user', JSON.stringify(result.user))
       

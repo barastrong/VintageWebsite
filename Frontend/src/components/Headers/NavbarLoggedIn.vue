@@ -75,8 +75,8 @@
             </div>
             <i class="fas fa-chevron-down text-dark"></i>
           </button>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-            <li><a class="dropdown-item" href="#"><i class="far fa-user me-2"></i>Profile</a></li>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown"><router-link to="/user/profile" style="text-decoration: none;">
+            <li><a class="dropdown-item" href="#"><i class="far fa-user me-2"></i>Profile</a></li></router-link>
             <li><a class="dropdown-item" href="#"><i class="far fa-file-alt me-2"></i>Orders</a></li>
             <li><a class="dropdown-item text-danger" href="#" @click="showLogoutModal"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
           </ul>
