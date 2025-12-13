@@ -1,6 +1,6 @@
 <template>
   <div id="app-container">
-    <NavbarLoggedIn v-if="isLoggedIn && !isAuthPage" />
+    <NavbarLoggedIn v-if="isAuthenticated && !isAuthPage" />
     <WebHeader v-else :isAuthPage="isAuthPage" />
     
     <!-- Konten utama yang akan mengisi ruang kosong -->
@@ -18,6 +18,7 @@ import { useRoute } from 'vue-router'
 import WebHeader from './components/Headers/WebHeader.vue';
 import NavbarLoggedIn from './components/Headers/NavbarLoggedIn.vue';
 import WebFooter from './components/Footer/WebFooter.vue';
+import { useAuth } from './stores/auth'; // <-- IMPORT useAuth
 
 export default {
   components: {
@@ -27,19 +28,17 @@ export default {
   },
   setup() {
     const route = useRoute()
-    const isLoggedIn = ref(false)
+    const { isAuthenticated, checkAuth } = useAuth(); 
     
     const isAuthPage = computed(() => {
       return route.path === '/login' ||  route.path === '/signup'
     })
     
     onMounted(() => {
-      // Check if user is logged in from localStorage
-      const user = localStorage.getItem('user')
-      isLoggedIn.value = !!user
+      checkAuth(); 
     })
     
-    return { isAuthPage, isLoggedIn }
+    return { isAuthPage, isAuthenticated } 
   }
 }
 </script>
@@ -48,7 +47,7 @@ export default {
 #app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Pastikan container mengisi seluruh tinggi viewport */
+  min-height: 100vh;
 }
 
 .flex-grow-1 {

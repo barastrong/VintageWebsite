@@ -1,3 +1,4 @@
+// auth.js
 import { ref } from 'vue'
 
 const user = ref(null)
@@ -22,11 +23,12 @@ export function useAuth() {
     user.value = null
     isAuthenticated.value = false
     localStorage.removeItem('user')
+    localStorage.removeItem('id') 
   }
 
   return {
     user,
-    isAuthenticated,
+    isAuthenticated, // <-- INI YANG AKAN DIGUNAKAN APP.VUE
     checkAuth,
     login,
     logout

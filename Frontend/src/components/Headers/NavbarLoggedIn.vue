@@ -2,12 +2,10 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-3 shadow-sm">
     <div class="container-fluid px-5">
       <div class="d-flex justify-content-between align-items-center w-100">
-        <!-- Logo and Brand -->
         <router-link to="/" class="navbar-brand d-flex align-items-center" style="margin-left: 8rem; text-decoration: none">
           <img src="@/assets/Logo Horizontal.png" alt="Vintage Logo" style="height: 40px" />
         </router-link>
 
-        <!-- Search Bar -->
         <div class="me-2" style="width: 900px; margin-left: 3rem">
           <div class="input-group input-group-lg">
             <span class="input-group-text bg-white border-end-0">
@@ -26,9 +24,7 @@
           </div>
         </div>
 
-        <!-- Right side - Icons and Profile -->
         <div class="d-flex align-items-center" style="gap: 2.25rem; margin-right: 12rem">
-        <!-- Cart Icon with Badge -->
         <router-link :to="`/cart/${getUserId()}`" style="text-decoration: none">
           <div class="position-relative">
             <button class="btn btn-link p-0 text-dark" style="text-decoration: none">
@@ -43,7 +39,6 @@
           </div>
         </router-link>
 
-        <!-- Favorite Icon with Badge -->
         <router-link to="/favorite" style="text-decoration: none">
         <div class="position-relative">
           <button class="btn btn-link p-0 text-dark" style="text-decoration: none">
@@ -58,7 +53,6 @@
         </div>
         </router-link>
 
-        <!-- Profile Dropdown -->
         <div class="dropdown">
           <button 
             class="btn btn-link p-0 d-flex align-items-center text-decoration-none" 
@@ -88,7 +82,6 @@
           </ul>
         </div>
 
-        <!-- Language Dropdown -->
         <div class="dropdown">
           <button 
             class="btn btn-light dropdown-toggle px-3 py-2" 
@@ -110,7 +103,6 @@
     </div>
   </nav>
 
-  <!-- Logout Confirmation Modal -->
   <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 380px">
       <div class="modal-content">
@@ -131,21 +123,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, onUnmounted } from 'vue'
+import { ref, onMounted, computed, onUnmounted, watch } from 'vue' // Tambahkan watch
 import { useRouter } from 'vue-router'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { useCart } from '@/stores/cart'
 import { useFavorite } from '@/stores/favorite'
+import { useAuth } from '@/stores/auth' // <-- Import useAuth
 
-const API_GET_USER = 'http://localhost/FinalTest/Backend/get_user.php';
+const API_BASE_URL = 'http://localhost/FinalTest/Backend/';
+const API_GET_USER = API_BASE_URL + 'get_user.php';
 
 const router = useRouter()
 const { cartCount, fetchCartCount } = useCart()
 const { favoriteCount, fetchFavoriteCount } = useFavorite()
+const { user, checkAuth, logout } = useAuth() // <-- Gunakan useAuth
 const searchQuery = ref('')
 
 const userImage = ref(null);
-const userStorageData = ref(JSON.parse(localStorage.getItem('user') || '{}'));
+const userStorageData = ref(JSON.parse(localStorage.getItem('user') || '{}')); // TETAP SIMPAN UNTUK INITIAL LOAD
+
+// Computed Property untuk User ID yang reaktif
+const currentUserId = computed(() => user.value ? user.value.id : null); 
 
 const goToSearch = () => {
   if (searchQuery.value.trim()) {
@@ -158,18 +156,34 @@ window.addEventListener('clearSearch', () => {
 })
 
 const fetchProfileImage = async (userId) => {
-    if (!userId) return;
+    if (!userId) {
+      userImage.value = null;
+      return;
+    }
 
     try {
         const response = await fetch(`${API_GET_USER}?id=${userId}`);
         const data = await response.json();
 
         if (data.success && data.data.image) {
-            userImage.value = 'http://localhost/FinalTest/Backend/' + data.data.image;
+            let imagePath = data.data.image; 
             
+            // Logika penghapusan duplikasi path
+            const redundantPrefix = 'uploads/users/';
+            if (imagePath.startsWith(redundantPrefix) && imagePath.indexOf(redundantPrefix) !== imagePath.lastIndexOf(redundantPrefix)) {
+                 imagePath = imagePath.substring(imagePath.indexOf(redundantPrefix) + redundantPrefix.length);
+            }
+            if (imagePath.startsWith('/')) {
+                imagePath = imagePath.substring(1);
+            }
+
+            // Update userStorageData dan localStorage DENGAN PATH RELATIF
             const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-            currentUser.image = data.data.image;
+            currentUser.image = imagePath;
             localStorage.setItem('user', JSON.stringify(currentUser));
+            userStorageData.value = currentUser; // Update ref
+
+            userImage.value = API_BASE_URL + imagePath; 
         } else {
             userImage.value = null;
         }
@@ -180,19 +194,34 @@ const fetchProfileImage = async (userId) => {
 }
 
 const loadUserFromStorage = () => {
-    const userId = localStorage.getItem('id');
-    userStorageData.value = JSON.parse(localStorage.getItem('user') || '{}');
+    checkAuth(); // Pastikan store diinisialisasi
+    const userId = currentUserId.value; // Ambil ID reaktif
 
-    if (userStorageData.value.image) {
-        userImage.value = 'http://localhost/FinalTest/Backend/' + userStorageData.value.image;
+    if (user.value && user.value.image) {
+        let imagePath = user.value.image; // Gunakan image dari store (sudah diupdate)
+        
+        // Logika penghapusan duplikasi path
+        const redundantPrefix = 'uploads/users/';
+        if (imagePath.startsWith(redundantPrefix) && imagePath.indexOf(redundantPrefix) !== imagePath.lastIndexOf(redundantPrefix)) {
+             imagePath = imagePath.substring(imagePath.indexOf(redundantPrefix) + redundantPrefix.length);
+        }
+        if (imagePath.startsWith('/')) {
+             imagePath = imagePath.substring(1);
+        }
+        userImage.value = API_BASE_URL + imagePath;
     } else {
+        // Jika tidak ada image di store, panggil fetchProfileImage
         fetchProfileImage(userId);
     }
+    
+    // Update initials data dari store
+    userStorageData.value = user.value || {};
 }
 
 const userInitials = computed(() => {
-    const user = userStorageData.value;
-    const name = user.username || ''; 
+    // Gunakan user dari store jika ada, jika tidak pakai userStorageData
+    const userDisplay = user.value || userStorageData.value;
+    const name = userDisplay.username || ''; 
     const names = name.trim().split(/\s+/);
     
     if (names.length >= 2) {
@@ -206,7 +235,7 @@ const userInitials = computed(() => {
 });
 
 const getUserId = () => {
-  return userStorageData.value.id || 1
+  return currentUserId.value || 1 // Gunakan ID reaktif
 }
 
 onMounted(() => {
@@ -220,6 +249,11 @@ onUnmounted(() => {
     window.removeEventListener('profileUpdated', loadUserFromStorage);
 });
 
+// WATCHER: Pastikan gambar dimuat jika user state berubah (misal setelah login)
+watch(currentUserId, (newId) => {
+    loadUserFromStorage();
+});
+
 
 const showLogoutModal = () => {
   const modal = new bootstrap.Modal(document.getElementById('logoutModal'))
@@ -229,7 +263,7 @@ const showLogoutModal = () => {
 const handleLogout = async () => {
   const modal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'))
   if (modal) modal.hide()
-  const user = userStorageData.value
+  const userToLogout = user.value // Ambil user dari store
   
   try {
     await fetch('http://localhost/FinalTest/Backend/logout.php', {
@@ -238,17 +272,18 @@ const handleLogout = async () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        userId: user.id
+        userId: userToLogout.id // Gunakan ID dari store
       })
     })
   } catch (error) {
     console.error('Logout error:', error)
   }
   
-  localStorage.removeItem('user')
-  localStorage.removeItem('id')
-  userStorageData.value = {}; 
-  userImage.value = null;
+  // Panggil store logout
+  logout(); 
+
+  // Hapus localStorage.getItem('id') yang lama
+  localStorage.removeItem('id') 
   
   window.location.href = '/'
 }
@@ -256,6 +291,6 @@ const handleLogout = async () => {
 
 <style>
 .custom-z-index {
-    z-index: 1030 !important; /* Gunakan nilai yang lebih tinggi dari z-index navbar/sticky-top */
+    z-index: 1030 !important; 
 }
 </style>

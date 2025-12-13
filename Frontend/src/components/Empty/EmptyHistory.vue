@@ -1,10 +1,10 @@
 
 
 <template>
-  <div class="container min-vh-100 d-flex align-items-center justify-content-center">
+  <div class="container d-flex align-items-center justify-content-center">
     <div class="text-center py-5">
       <!-- Shopping Bag Icon -->
-      <div class="mb-4">
+      <div class="">
         <!-- SVG Icon: Dikonversi langsung dari JSX ke template HTML/SVG -->
         <svg 
           width="120" 

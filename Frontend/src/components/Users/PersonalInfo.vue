@@ -128,24 +128,31 @@
 </template>
 
 <script setup>
-import { reactive, onMounted, ref, computed } from 'vue'
+import { reactive, onMounted, ref, computed, watch, nextTick } from 'vue' 
 import BaseButton from '@/components/ui/BaseButton.vue' 
 import BaseInput from '@/components/ui/BaseInput.vue'   
+import { useAuth } from '@/stores/auth' 
+
+const { user, checkAuth } = useAuth(); 
 
 const API_GET_URL = 'http://localhost/FinalTest/Backend/get_user.php'; 
 const API_UPDATE_URL = 'http://localhost/FinalTest/Backend/update_user.php'; 
 const API_DELETE_IMAGE = 'http://localhost/FinalTest/Backend/remove_image.php'; 
-const userId = localStorage.getItem('id'); 
 
-const formData = reactive({
-  fullName: '',
-  username: '',
-  email: ''
-})
+const currentUserId = computed(() => {
+    return user.value ? user.value.id : localStorage.getItem('id') || null; 
+});
 
 const userImage = ref(null); 
 const fileInput = ref(null); 
 const fileToUpload = ref(null); 
+
+const formData = reactive({
+  // Pastikan properti form data match dengan key di BaseInput (v-model)
+  fullName: '',
+  username: '',
+  email: ''
+})
 
 const userInitials = computed(() => {
     const name = formData.username; 
@@ -161,44 +168,80 @@ const userInitials = computed(() => {
     }
 });
 
-const fetchUserData = async () => {
+const fetchUserData = async (userId) => { 
+    console.log('--- Fetching User Data ---');
+    console.log('User ID being used:', userId);
+
     if (!userId) {
-        console.error('User ID not found in localStorage. Cannot fetch profile.');
+        console.warn('Skipping fetch: User ID is null or undefined.');
         return;
     }
     
     try {
-        const response = await fetch(`${API_GET_URL}?id=${userId}`);
+        const url = `${API_GET_URL}?id=${userId}`;
+        console.log('Fetching URL:', url);
+        const response = await fetch(url);
         
         if (!response.ok) {
+            console.error(`HTTP error! Status: ${response.status}`);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
 
+        console.log('Backend Response Data:', data);
+
         if (data.success) {
+            // **PENGISIAN FORM DATA INI HARUS BENAR DAN KONSISTEN**
             formData.fullName = data.data.fullname || ''; 
             formData.username = data.data.username || '';
             formData.email = data.data.email || '';
+            console.log('Form data filled:', formData.fullName, formData.username, formData.email); // Tambahkan log
+
+            if (user.value) {
+                const updatedUser = {
+                    ...user.value,
+                    fullname: data.data.fullname,
+                    username: data.data.username,
+                    email: data.data.email,
+                    image: data.data.image 
+                };
+                user.value = updatedUser;
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+            }
             
             if (data.data.image && data.data.image !== "") {
               userImage.value = 'http://localhost/FinalTest/Backend/' + data.data.image; 
+              console.log('User Image URL:', userImage.value);
             } else {
               userImage.value = null; 
             }
 
-            console.log('User data successfully loaded:', data.data);
+            console.log('User data successfully loaded and form filled.');
         } else {
-            console.error('Failed to load user data:', data.message);
+            console.error('Failed to load user data (API Success: false):', data.message);
         }
     } catch (error) {
         console.error('Fetch error:', error);
     }
 }
 
-onMounted(() => {
-    fetchUserData();
+onMounted(async () => {
+    checkAuth();
+    
+    // Tunggu nextTick untuk memastikan store diperbarui dari localStorage
+    await nextTick();
+
+    if (currentUserId.value) {
+        fetchUserData(currentUserId.value);
+    }
 });
+
+watch(currentUserId, (newId, oldId) => {
+    if (newId && newId !== oldId) {
+        fetchUserData(newId);
+    }
+}, { immediate: false }); 
 
 const handlePhotoUpload = () => {
     fileInput.value.click();
@@ -217,7 +260,6 @@ const onFileChange = (event) => {
 }
 
 const showDeleteModal = () => {
-    // Asumsi Bootstrap JS sudah di-load
     const modal = new bootstrap.Modal(document.getElementById('deletePhotoModal'));
     modal.show();
 }
@@ -226,6 +268,7 @@ const confirmDeletePhoto = async () => {
     const modal = bootstrap.Modal.getInstance(document.getElementById('deletePhotoModal'));
     if (modal) modal.hide();
 
+    const userId = currentUserId.value; 
     if (!userId) {
         alert('User ID not found. Please log in again.');
         return;
@@ -247,13 +290,13 @@ const confirmDeletePhoto = async () => {
         const result = await response.json();
 
         if (result.success) {
-            // TIDAK ADA ALERT JIKA BERHASIL
             userImage.value = null; 
             fileToUpload.value = null;
             
-            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-            currentUser.image = null;
-            localStorage.setItem('user', JSON.stringify(currentUser));
+            if (user.value) {
+                user.value.image = null;
+                localStorage.setItem('user', JSON.stringify(user.value));
+            }
             window.dispatchEvent(new Event('profileUpdated'));
         } else {
             alert(`Gagal hapus foto: ${result.message}`);
@@ -266,6 +309,7 @@ const confirmDeletePhoto = async () => {
 }
 
 const handleUpdateProfile = async () => {
+    const userId = currentUserId.value; 
     if (!userId) {
         alert('User ID not found. Please log in again.');
         return;
@@ -296,25 +340,26 @@ const handleUpdateProfile = async () => {
         const result = await response.json();
 
         if (result.success) {
-            // TIDAK ADA ALERT JIKA BERHASIL
             fileToUpload.value = null; 
             
-            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-            const newImagePath = result.imagePath ? ('uploads/users/' + result.imagePath) : currentUser.image;
+            if (user.value) {
+                const newImagePath = result.imagePath ? ('uploads/users/' + result.imagePath) : user.value.image;
 
-            const updatedUser = {
-                ...currentUser,
-                fullname: formData.fullName,
-                username: formData.username,
-                email: formData.email,
-                image: newImagePath 
-            };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
+                const updatedUser = {
+                    ...user.value,
+                    fullname: formData.fullName,
+                    username: formData.username,
+                    email: formData.email,
+                    image: newImagePath 
+                };
+                user.value = updatedUser;
+                localStorage.setItem('user', JSON.stringify(updatedUser));
             
-            window.dispatchEvent(new Event('profileUpdated'));
+                window.dispatchEvent(new Event('profileUpdated'));
 
-            if (result.imagePath) {
-                userImage.value = 'http://localhost/FinalTest/Backend/' + result.imagePath;
+                if (result.imagePath) {
+                    userImage.value = 'http://localhost/FinalTest/Backend/' + result.imagePath;
+                }
             }
         } else {
             alert(`Update Gagal: ${result.message}`);

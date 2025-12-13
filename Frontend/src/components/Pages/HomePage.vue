@@ -130,26 +130,33 @@ import { ref, onMounted } from 'vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import ProductCard from '@/components/Card/ProductCard.vue'
 
+const popularItems = ref([])
+const newProducts = ref([])
+const brands = ref([])
+const BASE_URL = 'http://localhost/FinalTest/Backend'
+
 onMounted(() => {
   document.title = 'Discover Your Timeless Style'
+  fetchPopularItems()
   fetchProducts()
   fetchBrands()
 })
 
-const popularItems = ref([
-  { id: 1, name: 'Vintage chicago cubs white crewneck', price: '200.000', size: '8 / M', likes: 12, image: '#E8E8E8' },
-  { id: 2, name: 'Red Crewneck', price: '200.000', size: '8 / M', likes: 12, image: '#1C1C1C' },
-  { id: 3, name: 'Necklace', price: '200.000', size: '8 / M', likes: 12, image: '#4A4A4A' },
-  { id: 4, name: 'Necklace', price: '200.000', size: '8 / M', likes: 12, image: '#6BAED6' },
-  { id: 5, name: 'Necklace', price: '200.000', size: '8 / M', likes: 12, image: '#FFD700' }
-])
-
-const newProducts = ref([])
-const brands = ref([])
+const fetchPopularItems = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/get_popular.php`)
+    const data = await response.json()
+    if (data.success) {
+      popularItems.value = data.data
+    }
+  } catch (error) {
+    console.error('Error fetching popular items:', error)
+  }
+}
 
 const fetchProducts = async () => {
   try {
-    const response = await fetch('http://localhost/FinalTest/Backend/get_products.php')
+    const response = await fetch(`${BASE_URL}/get_products.php`)
     const data = await response.json()
     if (data.success) {
       newProducts.value = data.data.slice(0, 5)
@@ -161,7 +168,7 @@ const fetchProducts = async () => {
 
 const fetchBrands = async () => {
   try {
-    const response = await fetch('http://localhost/FinalTest/Backend/get_brand.php')
+    const response = await fetch(`${BASE_URL}/get_brand.php`)
     const data = await response.json()
     if (data.success) {
       brands.value = data.data

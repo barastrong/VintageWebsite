@@ -140,6 +140,7 @@
             size="lg"
             custom-class="w-100 fw-semibold"
             custom-style="background-color: #0D6B6F; border: none"
+            :is-loading="isLoading" 
           >
             Sign up
           </BaseButton>
@@ -168,6 +169,7 @@ const router = useRouter()
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 const showSuccess = ref(false)
+const isLoading = ref(false) // State Loading
 const formData = ref({
   fullname: '',
   username: '',
@@ -187,6 +189,8 @@ const handleSubmit = async () => {
     return
   }
   
+  isLoading.value = true // Mulai Loading
+  
   try {
     const response = await fetch('http://localhost/FinalTest/Backend/register.php', {
       method: 'POST',
@@ -204,21 +208,29 @@ const handleSubmit = async () => {
     const result = await response.json()
     
     if (result.success) {
-      // Save user to localStorage with id
-      localStorage.setItem('user', JSON.stringify({
-        id: result.userId,
-        username: formData.value.username,
-        email: formData.value.email
-      }))
+
+      const userData = {
+        id: result.user.id, // <--- AMBIL DARI result.user.id
+        username: formData.value.username, // Ambil dari form
+        fullname: formData.value.fullname, // Ambil dari form
+        email: formData.value.email, // Ambil dari form
+      };
+      console.log('User data:', userData);
+      localStorage.setItem('id', userData.id); 
+      localStorage.setItem('user', JSON.stringify(userData));
       
       showSuccess.value = true
+      
       setTimeout(() => {
-        window.location.href = '/'
-      }, 10000)
+        isLoading.value = false 
+        window.location.href = '/' // Redirect ke halaman utama
+      }, 5000) 
     } else {
+      isLoading.value = false 
       alert(result.message)
     }
   } catch (error) {
+    isLoading.value = false 
     alert('Registration failed. Please try again.')
     console.error('Error:', error)
   }

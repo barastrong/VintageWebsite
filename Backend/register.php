@@ -31,7 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $pdo->prepare("INSERT INTO users (username, fullname, email, password, islogin, created_at) VALUES (?, ?, ?, ?, 1, NOW())");
     if ($stmt->execute([$username, $fullname, $email, $hashedPassword])) {
         $userId = $pdo->lastInsertId();
-        echo json_encode(['success' => true, 'message' => 'Registration successful', 'userId' => $userId]);
+        $userStmt = $pdo->prepare("SELECT id, username, fullname, email FROM users WHERE id = ?");
+        $userStmt->execute([$userId]);
+        $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+        echo json_encode(['success' => true, 'message' => 'Registration successful', 'user' => $user]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Registration failed']);
     }
