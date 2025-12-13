@@ -92,6 +92,7 @@
             variant="primary"
             custom-class="w-100 py-3 fw-semibold"
             custom-style="background-color: #009499; border: none"
+            @click="handleBuyNow"
           >
             Buy Now
           </BaseButton>
@@ -256,6 +257,47 @@ const toggleLike = async () => {
   }
 }
 
+const handleBuyNow = async () => {
+  if (!isAuthenticated.value) {
+    router.push('/login')
+    return
+  }
+  
+  try {
+    const response = await fetch('http://localhost/FinalTest/Backend/create_new_order.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: user.value.id,
+        product_id: product.value.id,
+      })
+    });
+    
+    const rawResponse = await response.text();
+    let data;
+    try {
+      data = JSON.parse(rawResponse);
+    } catch (e) {
+      console.error("PHP tidak kirim JSON valid! Isinya malah ini:", rawResponse);
+      alert("Error: Server tidak mengirim format JSON yang benar. Cek console.");
+      return;
+    }
+    
+    if (data.success) {
+      console.log('Order created for product ID:', product.value.id, 'New Order ID:', data.new_order_id);
+      router.push('/order');
+    } else {
+      console.error('Failed to Buy Now:', data.message);
+      alert(`Failed to Buy Now: ${data.message}`);
+    }
+  } catch (error) {
+    console.error('Error during Buy Now process:', error);
+    alert('Failed to Buy Now due to network or server error.');
+  }
+}
+
 const handleAddToCart = async () => {
   if (!isAuthenticated.value) {
     router.push('/login')
@@ -280,7 +322,6 @@ const handleAddToCart = async () => {
     
     if (data.success) {
       showSuccessModal.value = true
-      // Update cart count
       const { useCart } = await import('@/stores/cart')
       const { fetchCartCount } = useCart()
       fetchCartCount()
@@ -308,3 +349,9 @@ onMounted(() => {
   fetchOtherProducts()
 })
 </script>
+
+<style scoped>
+.order-item-image {
+  background-repeat: no-repeat;
+}
+</style>

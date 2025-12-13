@@ -89,6 +89,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import EmptyHistory from '../Empty/EmptyHistory.vue';
+import BaseButton from '../ui/BaseButton.vue'
 
 const router = useRouter();
 const BASE_URL = 'http://localhost/FinalTest/Backend';

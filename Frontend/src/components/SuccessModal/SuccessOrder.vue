@@ -66,6 +66,7 @@ const handleContinueShopping = () => {
 
 const handleGoToHistory = () => {
   console.log('Go to transaction history')
+  router.push('/user/history')
   closeModal()
 }
 
@@ -74,6 +75,6 @@ onMounted(() => {
   setTimeout(() => {
     router.push('/')
     closeModal()
-  }, 3000)
+  }, 1000)
 })
 </script>
